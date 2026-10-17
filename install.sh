@@ -23,6 +23,24 @@ done
 mkdir -p "$config_dir/themes/redline"
 cp -a "$source_dir/theme/." "$config_dir/themes/redline/"
 cp "$source_dir/shell.json" "$source_dir/shell.toml" "$config_dir/"
+# Keep the previous Fastfetch configuration and logo alongside the Omarchy backup.
+fastfetch_dir="$HOME/.config/fastfetch"
+mkdir -p "$fastfetch_dir" "$backup_dir/fastfetch"
+for item in config.jsonc omarchy-eclipse.txt; do
+  if [[ -e "$fastfetch_dir/$item" ]]; then
+    cp -a "$fastfetch_dir/$item" "$backup_dir/fastfetch/$item"
+  fi
+done
+cp "$source_dir/fastfetch/omarchy-eclipse.txt" "$fastfetch_dir/"
+python3 - "$source_dir/fastfetch/config.jsonc" "$fastfetch_dir" <<'PYTHON'
+import json
+from pathlib import Path
+import sys
+config = json.loads(Path(sys.argv[1]).read_text())
+destination = Path(sys.argv[2])
+config["logo"]["source"] = str(destination / "omarchy-eclipse.txt")
+(destination / "config.jsonc").write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n")
+PYTHON
 omarchy theme set redline
 omarchy theme bg set "$config_dir/themes/redline/backgrounds/tux-crimson-eclipse.png"
 echo "Installed. Previous configuration saved in: $backup_dir"

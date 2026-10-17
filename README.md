@@ -8,6 +8,7 @@ A copy of Steven’s red and black Omarchy theme, crimson Tux wallpaper, custom 
 
 - Redline color palette and shell styling.
 - Current wallpaper and the original black background.
+- Custom Omarchy Eclipse Fastfetch logo and matching red/orange system information layout.
 - Taskbar layout, global shell styling, and idle settings (screensaver after 150 seconds; lock after 300).
 - Custom bar, workspaces, active window, clock/calendar, weather, resources, playback spectrum, software updates, and media plugins. The media clone is included, but the saved layout uses the built-in media widget.
 
@@ -31,13 +32,13 @@ Prefer a manual download? Get **[redline-desktop.zip from the latest release](ht
 bash install.sh
 ```
 
-The ZIP includes the theme, both wallpapers, all nine plugins, shell configuration, and installer. No Git checkout is needed.
+The ZIP includes the theme, both wallpapers, all nine plugins, shell configuration, Fastfetch logo/configuration, and installer. No Git checkout is needed.
 
 ## Update
 
-Run the same one-command installer again to install the latest release. Each run backs up the configuration it replaces. Updates overwrite local edits to the bundled theme, plugins, and shell layout; save any custom changes first.
+Run the same one-command installer again to install the latest release. Each run backs up the configuration it replaces. Updates overwrite local edits to the bundled theme, plugins, Fastfetch configuration, and shell layout; save any custom changes first.
 
-The installer backs up affected configuration first, installs the theme and plugins, applies Redline, and selects the included wallpaper. It replaces your shell layout and idle settings. Backups are saved under `~/.local/state/omarchy/backups/redline-desktop-*`; their paths are printed during installation. To restore, copy the backed-up files and directories to their original locations and reapply your previous theme.
+The installer backs up affected configuration first, installs the theme and plugins, applies Redline, and selects the included wallpaper. It replaces your shell layout, idle settings, and Fastfetch configuration. The Fastfetch logo path is set for your own home directory; run `fastfetch` to see it. Fastfetch must already be installed. Backups are saved under `~/.local/state/omarchy/backups/redline-desktop-*`; their paths are printed during installation. To restore, copy the backed-up files and directories to their original locations and reapply your previous theme. Fastfetch backups are in the backup’s `fastfetch/` folder; restore those files to `~/.config/fastfetch/`.
 
 Only the export has been made portable; the source desktop configuration was left untouched. Plugin IDs retain the `steven.*` namespace so the layout continues to match. No weather location, credentials, clipboard history, notifications, caches, or old configuration backups are included.
 
