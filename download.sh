@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-for command in curl python3 sha256sum omarchy; do
+for command in curl python3 sha256sum; do
   command -v "$command" >/dev/null || { echo "Missing dependency: $command" >&2; exit 1; }
 done
 release_url="https://github.com/stspivey76-byte/omarchy-redline-desktop/releases/latest/download"
@@ -17,4 +17,4 @@ root = Path(sys.argv[1])
 with zipfile.ZipFile(root / "redline-desktop.zip") as archive:
     archive.extractall(root)
 PYTHON
-bash "$work_dir/redline-desktop/install.sh"
+bash "$work_dir/redline-desktop/install.sh" "$@"
