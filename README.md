@@ -17,11 +17,25 @@ Omarchy with its Quickshell-based shell and compatible plugin API. This is not a
 
 ## Install
 
-Review the files, then run:
+Install everything with one command on an existing compatible Omarchy desktop:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-desktop/main/download.sh | bash
+```
+
+This downloads the latest release ZIP, checks its SHA-256 checksum, and runs the bundled installer. Requires `curl`, `python3`, and `sha256sum` in addition to Omarchy. Run as your normal desktop user, without `sudo`.
+
+Prefer a manual download? Get **[redline-desktop.zip from the latest release](https://github.com/stspivey76-byte/omarchy-redline-desktop/releases/latest)**, extract it, open a terminal in the extracted `redline-desktop` folder, and run:
 
 ```bash
 bash install.sh
 ```
+
+The ZIP includes the theme, both wallpapers, all nine plugins, shell configuration, and installer. No Git checkout is needed.
+
+## Update
+
+Run the same one-command installer again to install the latest release. Each run backs up the configuration it replaces. Updates overwrite local edits to the bundled theme, plugins, and shell layout; save any custom changes first.
 
 The installer backs up affected configuration first, installs the theme and plugins, applies Redline, and selects the included wallpaper. It replaces your shell layout and idle settings. Backups are saved under `~/.local/state/omarchy/backups/redline-desktop-*`; their paths are printed during installation. To restore, copy the backed-up files and directories to their original locations and reapply your previous theme.
 
