@@ -163,7 +163,7 @@ def restore_snapshot(backup):
 
 
 def run_installer(payload, profile, env):
-    command = ["bash", str(payload / "install.sh"), "--desktop", profile, "--color", env.get("REDLINE_SELECTED_COLOR", "red")]
+    command = ["bash", str(payload / "install.sh"), "--desktop", profile]
     process = subprocess.Popen(command, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
     try:
         output, _ = process.communicate(timeout=300)

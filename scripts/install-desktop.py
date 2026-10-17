@@ -213,7 +213,9 @@ def main():
     parser.add_argument("--desktop", choices=PROFILES, default="auto")
     parser.add_argument("--detect", action="store_true", help="Print detected profile without making changes")
     parser.add_argument("--no-auto-update", action="store_true", help="Install without enabling automatic updates")
-    parser.add_argument("--color", choices=("red", "blue", "green", "yellow", "pink", "purple"), help="Choose a color without opening the terminal picker")
+    # Accept the old updater argument only during migration from older releases.
+    if os.environ.get("REDLINE_UPDATER_RUNNING"):
+        parser.add_argument("--color", help=argparse.SUPPRESS)
     args = parser.parse_args()
     desktop = detect_desktop() if args.desktop == "auto" else args.desktop
     if args.detect:
@@ -222,7 +224,7 @@ def main():
     from palette import choose_color, stage
     updater_config = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "redline-updater/config.json"
     saved = json.loads(updater_config.read_text()).get("color", "red") if updater_config.exists() else "red"
-    color = choose_color(args.color, saved if saved in ("red", "blue", "green", "yellow", "pink", "purple") else "red", desktop)
+    color = choose_color(saved if saved in ("red", "blue", "green", "yellow", "pink", "purple") else "red", desktop)
     print("Selected color: " + color, flush=True)
     canonical = SOURCE
     with tempfile.TemporaryDirectory(prefix="redline-colors-") as temporary:

@@ -22,10 +22,10 @@ class UpdaterTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.home = Path(self.temporary.name)
-        self.environment = patch.dict(os.environ, HOME=str(self.home), XDG_CONFIG_HOME=str(self.home / "config"), XDG_DATA_HOME=str(self.home / "data"), XDG_STATE_HOME=str(self.home / "state"), XDG_CURRENT_DESKTOP="custom", XDG_SESSION_DESKTOP="", DESKTOP_SESSION="", HYPRLAND_INSTANCE_SIGNATURE="", REDLINE_NO_START="1", REDLINE_NONINTERACTIVE="1")
+        self.environment = patch.dict(os.environ, HOME=str(self.home), XDG_CONFIG_HOME=str(self.home / "config"), XDG_DATA_HOME=str(self.home / "data"), XDG_STATE_HOME=str(self.home / "state"), XDG_CURRENT_DESKTOP="custom", XDG_SESSION_DESKTOP="", DESKTOP_SESSION="", HYPRLAND_INSTANCE_SIGNATURE="", REDLINE_NO_START="1", REDLINE_UPDATER_RUNNING="1", REDLINE_SELECTED_COLOR="purple")
         self.environment.start()
         self.addCleanup(self.environment.stop)
-        result = subprocess.run(["bash", str(SOURCE / "install.sh"), "--desktop", "generic", "--color", "purple"], capture_output=True, text=True)
+        result = subprocess.run(["bash", str(SOURCE / "install.sh"), "--desktop", "generic"], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.agent = updater.Updater()
         self.tag = self.agent.config["version"]

@@ -57,17 +57,33 @@ def stage(source, destination, color):
 
 
 def picker(default, desktop, terminal):
-    terminal.write("\n┌──────────────────────────────────────────────────────┐\n")
-    terminal.write("│                 REDLINE DESKTOP                      │\n")
-    terminal.write("│           Same desktop. Choose your color.            │\n")
-    terminal.write("└──────────────────────────────────────────────────────┘\n")
-    terminal.write(f"\n  Desktop detected: {desktop}\n")
-    terminal.write("  Matching wallpaper • taskbar • GTK • Fastfetch\n\n")
+    seed = COLORS[default]
+    channels = tuple(int(seed[i:i + 2], 16) for i in (1, 3, 5))
+    accent = "\033[38;2;" + ";".join(map(str, channels)) + "m"
+    reset, bright, dim = "\033[0m", "\033[1;97m", "\033[38;2;145;145;155m"
+    tux = [r"      .--.      ", r"     |o_o |     ", r"     |:_/ |     ",
+           r"    //   \ \    ", r"   (|     | )   ", r"  /'\_   _/`\   ", r"  \___)=(___/   "]
+    eclipse = ["         ·         .-========-.     ✦", "   ✦             .'           `.   ░",
+               "                /               \\ ▒", "        ·      |                 |▓█",
+               "                \\               / ▓", "    ✦            `.           .'  ▒",
+               "             ·     `-=======-'   ░"]
+    terminal.write("\n" + accent + "  ╭" + "─" * 62 + "╮\n" + reset)
+    terminal.write(accent + "  │" + bright + "R E D L I N E   ·   D E S K T O P".center(62) + accent + "│\n" + reset)
+    terminal.write(accent + "  ╰" + "─" * 62 + "╯\n\n" + reset)
+    for penguin, moon in zip(tux, eclipse):
+        terminal.write("   " + bright + penguin + accent + moon + reset + "\n")
+    terminal.write(dim + "\n           Tux. Eclipse. Six colors. Your atmosphere.\n" + reset)
+    terminal.write(f"  {dim}DESKTOP{reset}  {bright}{desktop}{reset}\n")
+    terminal.write(f"  {dim}MATCHES{reset}  wallpaper · taskbar · GTK · Fastfetch\n\n")
+    entries = []
     for index, (name, rgb) in enumerate(COLORS.items(), 1):
         channels = tuple(int(rgb[i:i + 2], 16) for i in (1, 3, 5))
         swatch = "\033[38;2;" + ";".join(map(str, channels)) + "m●\033[0m"
-        terminal.write(f"    {index}  {swatch}  {name.title():<8}" + ("  ← current choice" if name == default else "") + "\n")
-    terminal.write("\n  Existing settings are backed up before installing.\n")
+        selected = name == default
+        entries.append(f"{'›' if selected else ' '} {index}  {swatch}  {bright if selected else ''}{name.title():<8}{reset}" + (accent + "CURRENT" + reset if selected else "       "))
+    for index in range(0, len(entries), 2):
+        terminal.write("  " + entries[index] + "      " + entries[index + 1] + "\n")
+    terminal.write(dim + "  Settings backed up · Updates remember your color\n" + reset)
     while True:
         terminal.write(f"\n  Choose 1–6 or a color name [Enter: {default}, q: cancel]: ")
         terminal.flush()
@@ -86,22 +102,19 @@ def picker(default, desktop, terminal):
         terminal.write("  Please choose red, blue, green, yellow, pink, or purple.\n")
 
 
-def choose_color(explicit, default, desktop):
-    if explicit:
-        return explicit
-    if not os.environ.get("REDLINE_UPDATER_RUNNING") and not os.environ.get("REDLINE_NONINTERACTIVE"):
-        # curl | bash consumes stdin, so read/write the controlling terminal directly.
-        with ExitStack() as stack:
-            try:
-                reader = stack.enter_context(open("/dev/tty", "r"))
-                writer = stack.enter_context(open("/dev/tty", "w", buffering=1))
-            except OSError:
-                reader = writer = None
-            if reader is not None:
-                class Terminal:
-                    readline = reader.readline
-                    write = writer.write
-                    flush = writer.flush
-                return picker(default, desktop, Terminal())
-    print("No interactive color selection; using saved/default color: " + default)
-    return default
+def choose_color(default, desktop):
+    if os.environ.get("REDLINE_UPDATER_RUNNING"):
+        saved = os.environ.get("REDLINE_SELECTED_COLOR", default)
+        return saved if saved in COLORS else default
+    # curl | bash consumes stdin, so use the controlling terminal directly.
+    with ExitStack() as stack:
+        try:
+            reader = stack.enter_context(open("/dev/tty", "r"))
+            writer = stack.enter_context(open("/dev/tty", "w", buffering=1))
+        except OSError:
+            raise SystemExit("Open a terminal and run the installer to choose your color from the menu.")
+        class Terminal:
+            readline = reader.readline
+            write = writer.write
+            flush = writer.flush
+        return picker(default, desktop, Terminal())

@@ -20,7 +20,7 @@ Run the same command again to update. Updates replace the bundled theme, Fastfet
 
 ## Choose your color
 
-The normal copy-and-paste command opens a menu **inside your terminal**, including when run through `curl | bash`. Pick a number or type a color name:
+The normal copy-and-paste command opens a menu **inside your terminal**, with a Tux-and-eclipse ASCII banner, colored swatches, and a highlighted current selection, including when run through `curl | bash`. Pick a number or type a color name:
 
 ```text
 REDLINE DESKTOP — Same desktop. Choose your color.
@@ -35,15 +35,9 @@ Enter keeps your saved choice (red for a first install); `q` cancels before inst
 
 The original crimson wallpaper and five matching variants are bundled. See the [wallpaper files and generation notes](docs/wallpaper-color-prompts.md). No image-generation tools or extra packages are needed to install them.
 
-To choose directly without the menu:
+Run the same install command again to change colors through the menu. Manual installs require a terminal and always use the menu; there is no direct color-selection flag. The desktop/profile options still work with the menu.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-desktop/main/download.sh | bash -s -- --color purple
-```
-
-Or, from the extracted ZIP: `bash install.sh --color blue`. Use the same command to change colors later. The detected desktop/profile options still work alongside `--color`.
-
-Automatic updates and repairs **keep your saved color and never open the menu**. Scripted installations without a controlling terminal also keep the saved/default color; pass `--color` for an explicit choice. Omarchy briefly restarts its shell after installation to clear compiled widget caches, so the whole taskbar uses the chosen color. GTK apps may need reopening after a color change. The original `tux-crimson-eclipse.png` installed filename is retained for compatibility, and its contents match the selected color.
+Automatic updates and repairs **keep your saved color and never open the menu**. Omarchy briefly restarts its shell after installation to clear compiled widget caches, so the whole taskbar uses the chosen color. GTK apps may need reopening after a color change. The original `tux-crimson-eclipse.png` installed filename is retained for compatibility, and its contents match the selected color.
 
 ## Automatic updates and repairs
 

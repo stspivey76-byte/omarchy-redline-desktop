@@ -13,6 +13,7 @@ import tempfile
 import time
 import unittest
 from unittest.mock import Mock
+from unittest.mock import patch
 
 SOURCE = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location("palette", SOURCE / "scripts/palette.py")
@@ -21,6 +22,17 @@ spec.loader.exec_module(palette)
 
 
 class PaletteTests(unittest.TestCase):
+    def test_manual_installs_require_menu_and_reject_color_flag(self):
+        with patch.dict(os.environ, {}, clear=True), patch("builtins.open", side_effect=OSError("no terminal")):
+            with self.assertRaisesRegex(SystemExit, "menu"):
+                palette.choose_color("red", "generic")
+        import subprocess
+        env = dict(os.environ)
+        env.pop("REDLINE_UPDATER_RUNNING", None)
+        result = subprocess.run(["bash", str(SOURCE / "install.sh"), "--color", "blue"], env=env, capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("unrecognized arguments", result.stderr)
+
     def test_all_six_palettes_preserve_plugins_and_select_wallpaper(self):
         with tempfile.TemporaryDirectory() as tmp:
             for color in palette.COLORS:
