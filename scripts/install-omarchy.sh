@@ -59,4 +59,22 @@ omarchy theme set redline
 # Also apply explicitly for environments that defer theme hooks.
 bash "$hook_path" redline
 omarchy theme bg set "$config_dir/themes/redline/backgrounds/tux-crimson-eclipse.png"
+# QML can retain compiled copies of widgets after a rescan. Restart the shell
+# after installing colored plugin code so every widget uses the selected hue.
+if [[ -n ${WAYLAND_DISPLAY:-}${DISPLAY:-} ]]; then
+  if ! restart_output="$(omarchy restart shell 2>&1)"; then
+    shell_ready=0
+    for ((attempt = 0; attempt < 20; attempt++)); do
+      if OMARCHY_SHELL_IPC_TIMEOUT=0.5s omarchy-shell shell ping >/dev/null 2>&1; then
+        shell_ready=1
+        break
+      fi
+      sleep 0.5
+    done
+    if (( ! shell_ready )); then
+      echo "NOTICE: Shell reload did not finish. Log out and back in to load all plugin colors." >&2
+      echo "$restart_output" >&2
+    fi
+  fi
+fi
 echo "Installed. Previous configuration saved in: $backup_dir"

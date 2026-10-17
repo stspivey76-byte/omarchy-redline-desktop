@@ -43,7 +43,7 @@ curl -fsSL https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-des
 
 Or, from the extracted ZIP: `bash install.sh --color blue`. Use the same command to change colors later. The detected desktop/profile options still work alongside `--color`.
 
-Automatic updates and repairs **keep your saved color and never open the menu**. Scripted installations without a controlling terminal also keep the saved/default color; pass `--color` for an explicit choice. GTK apps may need reopening after a color change. The original `tux-crimson-eclipse.png` installed filename is retained for compatibility, and its contents match the selected color.
+Automatic updates and repairs **keep your saved color and never open the menu**. Scripted installations without a controlling terminal also keep the saved/default color; pass `--color` for an explicit choice. Omarchy briefly restarts its shell after installation to clear compiled widget caches, so the whole taskbar uses the chosen color. GTK apps may need reopening after a color change. The original `tux-crimson-eclipse.png` installed filename is retained for compatibility, and its contents match the selected color.
 
 ## Automatic updates and repairs
 
@@ -165,6 +165,8 @@ bash "${XDG_DATA_HOME:-$HOME/.local/share}/redline-desktop/gtk-style.sh" redline
 ```
 
 ## Validation
+
+Blue wallpaper and the complete Omarchy taskbar were visually verified together after clearing the shell’s compiled QML cache.
 
 GNOME Files 50.3.1 styling was visually verified on Omarchy/Hyprland, including dark views, crimson headers/sidebar, and red selected files. The temporary Files installation and its dependencies were removed afterward.
 
