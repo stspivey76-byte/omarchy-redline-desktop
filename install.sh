@@ -41,6 +41,22 @@ destination = Path(sys.argv[2])
 config["logo"]["source"] = str(destination / "omarchy-eclipse.txt")
 (destination / "config.jsonc").write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n")
 PYTHON
+# Preserve GTK files and any previous Redline hook before enabling color overrides.
+for version in 3.0 4.0; do
+  gtk_dir="$HOME/.config/gtk-$version"
+  if [[ -e "$gtk_dir/gtk.css" || -L "$gtk_dir/gtk.css" ]]; then
+    mkdir -p "$backup_dir/gtk-$version"
+    cp -a "$gtk_dir/gtk.css" "$backup_dir/gtk-$version/"
+  fi
+done
+hook_path="$config_dir/hooks/theme-set.d/redline-gtk"
+if [[ -e "$hook_path" ]]; then
+  mkdir -p "$backup_dir/hooks/theme-set.d"
+  cp -a "$hook_path" "$backup_dir/hooks/theme-set.d/"
+fi
+omarchy hook install theme-set "$source_dir/hooks/redline-gtk"
 omarchy theme set redline
+# Also apply explicitly for environments that defer theme hooks.
+bash "$hook_path" redline
 omarchy theme bg set "$config_dir/themes/redline/backgrounds/tux-crimson-eclipse.png"
 echo "Installed. Previous configuration saved in: $backup_dir"

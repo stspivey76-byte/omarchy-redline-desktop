@@ -7,6 +7,7 @@ A copy of Steven’s red and black Omarchy theme, crimson Tux wallpaper, custom 
 ## Included
 
 - Redline color palette and shell styling.
+- Matching GTK 3 and GTK 4/libadwaita colors for GNOME Files (Nautilus) and other native GTK apps.
 - Current wallpaper and the original black background.
 - Custom Omarchy Eclipse Fastfetch logo and matching red/orange system information layout.
 - Taskbar layout, global shell styling, and idle settings (screensaver after 150 seconds; lock after 300).
@@ -32,7 +33,7 @@ Prefer a manual download? Get **[redline-desktop.zip from the latest release](ht
 bash install.sh
 ```
 
-The ZIP includes the theme, both wallpapers, all nine plugins, shell configuration, Fastfetch logo/configuration, and installer. No Git checkout is needed.
+The ZIP includes the theme, both wallpapers, all nine plugins, shell configuration, Fastfetch logo/configuration, GTK styling with a theme-switch hook, and installer. No Git checkout is needed.
 
 ## Update
 
@@ -41,6 +42,20 @@ Run the same one-command installer again to install the latest release. Each run
 The installer backs up affected configuration first, installs the theme and plugins, applies Redline, and selects the included wallpaper. It replaces your shell layout, idle settings, and Fastfetch configuration. The Fastfetch logo path is set for your own home directory; run `fastfetch` to see it. Fastfetch must already be installed. Backups are saved under `~/.local/state/omarchy/backups/redline-desktop-*`; their paths are printed during installation. To restore, copy the backed-up files and directories to their original locations and reapply your previous theme. Fastfetch backups are in the backup’s `fastfetch/` folder; restore those files to `~/.config/fastfetch/`.
 
 Only the export has been made portable; the source desktop configuration was left untouched. Plugin IDs retain the `steven.*` namespace so the layout continues to match. No weather location, credentials, clipboard history, notifications, caches, or old configuration backups are included.
+
+## GNOME Files and GTK apps
+
+The installer includes Redline GTK styling: near-black file views, dark crimson sidebars and headers, red selections and accents, and light text. It preserves existing `~/.config/gtk-3.0/gtk.css` and `~/.config/gtk-4.0/gtk.css` rules and adds a managed import at the top. Existing custom rules may override Redline colors. These are per-user color overrides layered over Adwaita; icons stay under Omarchy’s normal icon settings.
+
+Close and reopen Files and other GTK apps after installing or changing themes. A `theme-set` hook enables the imports when selecting Redline and removes them when selecting another Omarchy theme. Flatpak apps may need separate sandbox access and are not configured by this installer.
+
+GTK backups are stored in the printed backup folder under `gtk-3.0/` and `gtk-4.0/`. To disable the GTK styling without changing your Omarchy theme:
+
+```bash
+bash ~/.config/omarchy/hooks/theme-set.d/redline-gtk disabled
+```
+
+Selecting Redline again re-enables it. To remove this integration permanently, disable it first, then remove `~/.config/omarchy/hooks/theme-set.d/redline-gtk`. Restore any previous hook from the backup if needed.
 
 ## Attribution
 
