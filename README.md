@@ -47,6 +47,8 @@ Only the export has been made portable; the source desktop configuration was lef
 
 The installer includes Redline GTK styling: near-black file views, dark crimson sidebars and headers, red selections and accents, and light text. It preserves existing `~/.config/gtk-3.0/gtk.css` and `~/.config/gtk-4.0/gtk.css` rules and adds a managed import at the top. Existing custom rules may override Redline colors. These are per-user color overrides layered over Adwaita; icons stay under Omarchy’s normal icon settings.
 
+Visually verified with GNOME Files 50.3.1 on Omarchy/Hyprland, including dark views, crimson headers/sidebar, and red file selections.
+
 Close and reopen Files and other GTK apps after installing or changing themes. A `theme-set` hook enables the imports when selecting Redline and removes them when selecting another Omarchy theme. Flatpak apps may need separate sandbox access and are not configured by this installer.
 
 GTK backups are stored in the printed backup folder under `gtk-3.0/` and `gtk-4.0/`. To disable the GTK styling without changing your Omarchy theme:
