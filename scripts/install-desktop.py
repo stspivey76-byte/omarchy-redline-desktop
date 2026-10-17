@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import shlex
 import subprocess
+import sys
 import tempfile
 
 SOURCE = Path(__file__).resolve().parent.parent
@@ -210,6 +211,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--desktop", choices=PROFILES, default="auto")
     parser.add_argument("--detect", action="store_true", help="Print detected profile without making changes")
+    parser.add_argument("--no-auto-update", action="store_true", help="Install without enabling automatic updates")
     args = parser.parse_args()
     desktop = detect_desktop() if args.desktop == "auto" else args.desktop
     if args.detect:
@@ -222,10 +224,14 @@ def main():
         if os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config")) != str(Path.home() / ".config"):
             parser.error("The Omarchy installer requires the standard ~/.config directory")
         subprocess.run(["bash", str(SOURCE / "scripts/install-omarchy.sh")], check=True)
+        subprocess.run([sys.executable, str(SOURCE / "scripts/register-updater.py"), str(SOURCE), desktop, *(["--disabled"] if args.no_auto_update else [])], check=True)
         return
     installer = Installer(desktop)
     installer.install_shared()
     installer.apply()
+    for path in (installer.data / "redline-updater", Path.home() / ".local/bin/redline-update", installer.config / "autostart/redline-updater.desktop"):
+        installer.preserve(path)
+    subprocess.run([sys.executable, str(SOURCE / "scripts/register-updater.py"), str(SOURCE), desktop, *(["--disabled"] if args.no_auto_update else [])], check=True)
     print("Shared theme, GTK styling, wallpaper assets and Fastfetch configuration installed.")
     print("Omarchy shell/bar plugins and idle settings require the Omarchy profile; other desktop panels are unchanged.")
     print("Reopen apps to load GTK styling. Fastfetch must already be installed.")
@@ -235,4 +241,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if os.environ.get("REDLINE_UPDATER_RUNNING") or any(flag in sys.argv for flag in ("--detect", "--help", "-h")):
+        main()
+    else:
+        from updater import lock, paths
+        with lock(paths()[2] / "install.lock") as acquired:
+            if not acquired:
+                raise SystemExit("A Redline installation or update is already running; try again later.")
+            main()

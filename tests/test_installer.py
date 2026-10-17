@@ -67,7 +67,7 @@ class InstallerTests(unittest.TestCase):
             tool = binary / "gsettings"
             tool.write_text(FAKE_TOOL)
             tool.chmod(0o755)
-            env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(home / "config"), XDG_DATA_HOME=str(home / "data"), XDG_STATE_HOME=str(home / "state"), PATH=str(binary) + ":" + os.environ["PATH"], TOOL_LOG=str(home / "log"), FAIL_DESKTOP_TOOLS="1")
+            env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(home / "config"), XDG_DATA_HOME=str(home / "data"), XDG_STATE_HOME=str(home / "state"), PATH=str(binary) + ":" + os.environ["PATH"], TOOL_LOG=str(home / "log"), FAIL_DESKTOP_TOOLS="1", REDLINE_NO_START="1")
             result = subprocess.run(["bash", str(ROOT / "install.sh"), "--desktop", "gnome"], env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("Could not apply", result.stdout)
@@ -88,7 +88,7 @@ class InstallerTests(unittest.TestCase):
             driver.chmod(0o755)
             for name in ("gsettings", "xfconf-query", "plasma-apply-colorscheme", "plasma-apply-wallpaperimage", "pcmanfm", "pcmanfm-qt", "omarchy"):
                 (binary / name).symlink_to(driver)
-            env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(config), XDG_DATA_HOME=str(data), XDG_STATE_HOME=str(state), PATH=str(binary) + ":" + os.environ["PATH"], TOOL_LOG=str(base / "tools.jsonl"))
+            env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(config), XDG_DATA_HOME=str(data), XDG_STATE_HOME=str(state), PATH=str(binary) + ":" + os.environ["PATH"], TOOL_LOG=str(base / "tools.jsonl"), REDLINE_NO_START="1")
             gtk = config / "gtk-4.0/gtk.css"
             gtk.parent.mkdir(parents=True)
             original = "/* Existing styling */\nbutton { border-radius: 7px; }\n"
