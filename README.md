@@ -1,6 +1,6 @@
 # Redline Desktop
 
-Steven’s red and black desktop theme, crimson Tux wallpapers, custom Fastfetch logo, and Omarchy shell plugins. The installer detects your active desktop and applies the supported settings for that desktop.
+Steven’s red and black desktop theme, crimson Tux wallpapers, custom Fastfetch logo, and Omarchy shell plugins. The installer opens a terminal color picker, detects your active desktop, and applies the supported settings for that desktop.
 
 ![Crimson Tux wallpaper](theme/backgrounds/tux-crimson-eclipse.png)
 
@@ -17,6 +17,33 @@ Requires Linux, Bash, Python 3, `curl`, and `sha256sum`. It downloads the latest
 For a manual install, download [redline-desktop.zip from the latest release](https://github.com/stspivey76-byte/omarchy-redline-desktop/releases/latest), extract it, and run `bash install.sh` inside the extracted `redline-desktop` directory. No Git checkout is needed.
 
 Run the same command again to update. Updates replace the bundled theme, Fastfetch layout, and (on Omarchy) plugins/shell layout. Save custom changes first. Existing GTK CSS rules are preserved after the managed Redline import and can override its colors.
+
+## Choose your color
+
+The normal copy-and-paste command opens a menu **inside your terminal**, including when run through `curl | bash`. Pick a number or type a color name:
+
+```text
+REDLINE DESKTOP — Same desktop. Choose your color.
+
+1  Red       2  Blue       3  Green
+4  Yellow    5  Pink       6  Purple
+```
+
+Enter keeps your saved choice (red for a first install); `q` cancels before installation. All six options keep the same nine plugins, layout, and Tux/eclipse wallpaper design. The chosen color applies to the taskbar text, workspace pills, spectrum, resource meters, volume accents, media clone, popups, GTK styling, KDE scheme, and Fastfetch logo/layout. The matching wallpaper is selected automatically on desktops with wallpaper adapters. Other sessions receive the selected wallpaper file for manual application. Native third-party tray icons can retain their application's own artwork.
+
+![Blue eclipse wallpaper](theme/backgrounds/tux-blue-eclipse.png)
+
+The original crimson wallpaper and five matching variants are bundled. See the [wallpaper files and generation notes](docs/wallpaper-color-prompts.md). No image-generation tools or extra packages are needed to install them.
+
+To choose directly without the menu:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-desktop/main/download.sh | bash -s -- --color purple
+```
+
+Or, from the extracted ZIP: `bash install.sh --color blue`. Use the same command to change colors later. The detected desktop/profile options still work alongside `--color`.
+
+Automatic updates and repairs **keep your saved color and never open the menu**. Scripted installations without a controlling terminal also keep the saved/default color; pass `--color` for an explicit choice. GTK apps may need reopening after a color change. The original `tux-crimson-eclipse.png` installed filename is retained for compatibility, and its contents match the selected color.
 
 ## Automatic updates and repairs
 
@@ -96,7 +123,7 @@ Profiles: `auto`, `omarchy`, `gnome`, `kde`, `xfce`, `cinnamon`, `mate`, `budgie
 
 - Redline GTK 3 and GTK 4/libadwaita styling: near-black file views, crimson headers/sidebar, red selections, light text.
 - Native `Redline.colors` scheme for KDE Plasma/Qt apps.
-- Crimson Tux wallpaper and the original black background.
+- Original crimson Tux wallpaper, matching blue/green/yellow/pink/purple variants, and the black background.
 - Custom Omarchy Eclipse Fastfetch logo and red/orange information layout. Outside Omarchy, its Omarchy-specific probes are replaced with portable Fastfetch modules.
 - Omarchy color palette, shell styling, top bar, and idle settings (screensaver at 150 seconds, lock at 300).
 - Nine Omarchy plugins: bar, workspaces, active window, clock/calendar, weather, resources, spectrum, updates, and media. The saved Omarchy layout uses the built-in media widget.
@@ -144,6 +171,8 @@ GNOME Files 50.3.1 styling was visually verified on Omarchy/Hyprland, including 
 Desktop detection, native command routing, custom XDG paths, symlink/CSS preservation, repeat installs, and portable restore are tested with isolated homes and mocked desktop tools. Updater tests cover newer-release installation, checksum rejection, downgrade prevention, offline repair, disabled/inactive themes, update locks, CLI controls, and file rollback after a simulated partial failure.
 
 Other desktop sessions have **not** been visually tested; automated adapter coverage does not establish identical rendering on every desktop/version.
+
+Color-picker tests cover all six palettes, plugin/layout preservation, selected wallpapers, readable selection text, number/name/default/cancel input, and a piped installation reading from a real controlling terminal. Update tests retain a purple choice across upgrades and repairs.
 
 Run the checks with `python3 -m unittest discover -s tests -v`.
 

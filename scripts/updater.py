@@ -70,7 +70,7 @@ def validate_payload(payload, tag):
     json.loads((payload / "fastfetch/config.jsonc").read_text())
     for manifest in (payload / "plugins").glob("*/manifest.json"):
         json.loads(manifest.read_text())
-    for name in ("scripts/install-desktop.py", "scripts/updater.py", "scripts/register-updater.py"):
+    for name in ("scripts/install-desktop.py", "scripts/updater.py", "scripts/register-updater.py", "scripts/palette.py"):
         compile((payload / name).read_text(), str(payload / name), "exec")
 
 
@@ -163,7 +163,7 @@ def restore_snapshot(backup):
 
 
 def run_installer(payload, profile, env):
-    command = ["bash", str(payload / "install.sh"), "--desktop", profile]
+    command = ["bash", str(payload / "install.sh"), "--desktop", profile, "--color", env.get("REDLINE_SELECTED_COLOR", "red")]
     process = subprocess.Popen(command, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
     try:
         output, _ = process.communicate(timeout=300)
@@ -222,7 +222,7 @@ class Updater:
         backup = snapshot(self.config["roots"], self.state)
         self.status["last_backup"] = str(backup)
         write_json(self.state / "status.json", self.status)
-        env = dict(os.environ, REDLINE_UPDATER_RUNNING="1")
+        env = dict(os.environ, REDLINE_UPDATER_RUNNING="1", REDLINE_SELECTED_COLOR=self.config.get("color", "red"))
         previous_theme = None
         previous_background = None
         if profile == "omarchy":

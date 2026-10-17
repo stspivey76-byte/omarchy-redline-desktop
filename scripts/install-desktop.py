@@ -208,21 +208,40 @@ class Installer:
 
 
 def main():
+    global SOURCE
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--desktop", choices=PROFILES, default="auto")
     parser.add_argument("--detect", action="store_true", help="Print detected profile without making changes")
     parser.add_argument("--no-auto-update", action="store_true", help="Install without enabling automatic updates")
+    parser.add_argument("--color", choices=("red", "blue", "green", "yellow", "pink", "purple"), help="Choose a color without opening the terminal picker")
     args = parser.parse_args()
     desktop = detect_desktop() if args.desktop == "auto" else args.desktop
     if args.detect:
         print(desktop)
         return
+    from palette import choose_color, stage
+    updater_config = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "redline-updater/config.json"
+    saved = json.loads(updater_config.read_text()).get("color", "red") if updater_config.exists() else "red"
+    color = choose_color(args.color, saved if saved in ("red", "blue", "green", "yellow", "pink", "purple") else "red", desktop)
+    print("Selected color: " + color, flush=True)
+    canonical = SOURCE
+    with tempfile.TemporaryDirectory(prefix="redline-colors-") as temporary:
+        SOURCE = stage(canonical, Path(temporary) / "redline-desktop", color)
+        os.environ["REDLINE_BASE_SOURCE"] = str(canonical)
+        os.environ["REDLINE_SELECTED_COLOR"] = color
+        try:
+            install_profile(args, desktop)
+        finally:
+            SOURCE = canonical
+
+
+def install_profile(args, desktop):
     print("Desktop profile: " + desktop, flush=True)
     if desktop == "omarchy":
         if not shutil.which("omarchy"):
-            parser.error("The Omarchy profile requires Omarchy to be installed")
+            raise SystemExit("The Omarchy profile requires Omarchy to be installed")
         if os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config")) != str(Path.home() / ".config"):
-            parser.error("The Omarchy installer requires the standard ~/.config directory")
+            raise SystemExit("The Omarchy installer requires the standard ~/.config directory")
         subprocess.run(["bash", str(SOURCE / "scripts/install-omarchy.sh")], check=True)
         subprocess.run([sys.executable, str(SOURCE / "scripts/register-updater.py"), str(SOURCE), desktop, *(["--disabled"] if args.no_auto_update else [])], check=True)
         return

@@ -17,6 +17,8 @@ def desktop_quote(value):
 
 
 def register(source, profile, disabled=False):
+    canonical = Path(os.environ.get("REDLINE_BASE_SOURCE", str(source)))
+    color = os.environ.get("REDLINE_SELECTED_COLOR", "red")
     config, root, state = paths()
     tag = (source / "VERSION").read_text().strip()
     version(tag)
@@ -35,13 +37,13 @@ def register(source, profile, disabled=False):
         shutil.copy2(source / "scripts" / name, temporary)
         temporary.replace(root / name)
     payload = root / "releases" / tag
-    if source.resolve() != payload.resolve():
+    if canonical.resolve() != payload.resolve():
         staging = root / "releases" / (tag + ".new")
         if staging.exists():
             shutil.rmtree(staging)
         staging.mkdir(parents=True)
         for name in ("VERSION", "install.sh", "scripts", "theme", "plugins", "hooks", "fastfetch", "shell.json", "shell.toml"):
-            origin = source / name
+            origin = canonical / name
             if origin.is_dir():
                 shutil.copytree(origin, staging / name, ignore=shutil.ignore_patterns("__pycache__"))
             else:
@@ -89,7 +91,7 @@ def register(source, profile, disabled=False):
         if profile != "omarchy":
             managed_roots.append(str(config / gtk / "settings.ini"))
     managed_roots.extend(map(str, runtime_paths))
-    write_json(root / "config.json", {"version": tag, "profile": profile, "enabled": enabled, "repair": prior.get("repair", True), "hashes": hashes, "required": required, "roots": managed_roots})
+    write_json(root / "config.json", {"version": tag, "profile": profile, "color": color, "enabled": enabled, "repair": prior.get("repair", True), "hashes": hashes, "required": required, "roots": managed_roots})
     launcher.parent.mkdir(parents=True, exist_ok=True)
     temporary = launcher.with_suffix(".new")
     temporary.write_text("#!/usr/bin/env bash\nexec " + shlex.quote(sys.executable) + " " + shlex.quote(str(root / "updater.py")) + ' "$@"\n')
