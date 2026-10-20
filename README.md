@@ -124,6 +124,20 @@ Profiles: `auto`, `omarchy`, `gnome`, `kde`, `xfce`, `cinnamon`, `mate`, `budgie
 
 For the full Omarchy profile, use a compatible Quickshell-based Omarchy shell/plugin API. Python 3 powers resource meters and update checks. Spectrum needs `pactl` and `parec` (Arch package `libpulse`). Weather uses `curl`, Open-Meteo, and wttr.in. Update checks use installed tools such as `checkupdates`, `yay`, `mise`, `flatpak`, and `fwupdmgr`.
 
+## Uninstall and restore previous settings
+
+For installations made with this version, run in a terminal:
+
+```bash
+redline-uninstall
+```
+
+Or run `bash uninstall.sh` from an extracted download. Review the confirmation before proceeding; `--yes` skips it. The uninstaller stops the background updater and replays all installation backups, newest first, restoring the files, wallpaper, theme, plugins and native desktop settings saved before installation. Files created by Redline are removed; files and symlinks that existed beforehand are restored. Repeated installs and color changes retain the original baseline. Keep the backup directories: without them, exact restoration is impossible. This restores installer-managed files and recorded desktop settings; third-party Omarchy theme hooks, browser policies, editor integrations, installed packages, and hardware lighting can have additional effects that are not captured by these backups.
+
+Newer edits to affected files are replaced. Before restoring, the uninstaller saves current affected files in an `uninstall-*` directory under the installer backup directory, with a `files.json` mapping. Existing installation backups remain available. Log out and back in afterward so applications reload their restored settings. For Plasma, LXQt and LXDE, log out first and run from a text console; the uninstaller refuses to run in a graphical session on these profiles.
+
+**Older installations:** earlier Omarchy releases did not capture a complete restore manifest. Installing this version over an old installation cannot reconstruct settings that were never saved. Use the older backups described below to recover what is available; full automatic restoration is supported starting with a fresh installation of this version. Older portable installations with complete manifests can use `bash uninstall.sh` from this version.
+
 ## Backups and restore
 
 On non-Omarchy desktops, the installer respects `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, and `XDG_STATE_HOME`. Shared theme/wallpaper files live under `${XDG_DATA_HOME:-~/.local/share}/redline-desktop/`. The printed backup directory lives under `${XDG_STATE_HOME:-~/.local/state}/redline-desktop/backups/` and contains a restore script plus saved files and native settings. To undo an installation, run the exact command printed by that installation:

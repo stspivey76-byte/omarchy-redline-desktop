@@ -237,6 +237,12 @@ def main():
             SOURCE = canonical
 
 
+def preserve_runtime(installer):
+    for path in (installer.data / "redline-updater", Path.home() / ".local/bin/redline-update",
+                 Path.home() / ".local/bin/redline-uninstall", installer.config / "autostart/redline-updater.desktop"):
+        installer.preserve(path)
+
+
 def install_profile(args, desktop):
     print("Desktop profile: " + desktop, flush=True)
     if desktop == "omarchy":
@@ -244,14 +250,29 @@ def install_profile(args, desktop):
             raise SystemExit("The Omarchy profile requires Omarchy to be installed")
         if os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config")) != str(Path.home() / ".config"):
             raise SystemExit("The Omarchy installer requires the standard ~/.config directory")
+        installer = Installer(desktop)
+        omarchy = Path.home() / ".config/omarchy"
+        for name in ("shell.json", "shell.toml", "themes/redline", "hooks/theme-set.d/redline-gtk",
+                     "hooks/post-boot.d/redline-autoupdate", "hooks/post-update.d/redline-autoupdate"):
+            installer.preserve(omarchy / name)
+        for plugin in (SOURCE / "plugins").iterdir():
+            installer.preserve(omarchy / "plugins" / plugin.name)
+        for name in ("fastfetch/config.jsonc", "fastfetch/omarchy-eclipse.txt", "gtk-3.0/gtk.css", "gtk-4.0/gtk.css"):
+            installer.preserve(installer.config / name)
+        installer.preserve(Path.home() / ".local/state/omarchy/current")
+        for key in ("color-scheme", "gtk-theme", "icon-theme"):
+            old = installer.run("gsettings", "get", "org.gnome.desktop.interface", key)
+            if old is not None:
+                installer.manifest["settings"].append({"restore": ["gsettings", "set", "org.gnome.desktop.interface", key, old]})
+        installer.save()
+        preserve_runtime(installer)
         subprocess.run(["bash", str(SOURCE / "scripts/install-omarchy.sh")], check=True)
         subprocess.run([sys.executable, str(SOURCE / "scripts/register-updater.py"), str(SOURCE), desktop, *(["--disabled"] if args.no_auto_update else [])], check=True)
         return
     installer = Installer(desktop)
     installer.install_shared()
     installer.apply()
-    for path in (installer.data / "redline-updater", Path.home() / ".local/bin/redline-update", installer.config / "autostart/redline-updater.desktop"):
-        installer.preserve(path)
+    preserve_runtime(installer)
     subprocess.run([sys.executable, str(SOURCE / "scripts/register-updater.py"), str(SOURCE), desktop, *(["--disabled"] if args.no_auto_update else [])], check=True)
     print("Shared theme, GTK styling, wallpaper assets and Fastfetch configuration installed.")
     print("Omarchy shell/bar plugins and idle settings require the Omarchy profile; other desktop panels are unchanged.")

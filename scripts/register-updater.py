@@ -28,11 +28,11 @@ def register(source, profile, disabled=False):
     root.mkdir(parents=True, exist_ok=True)
     launcher = Path.home() / ".local/bin/redline-update"
     autostart = config / "autostart/redline-updater.desktop"
-    runtime_paths = [root / "updater.py", root / "install-desktop.py", root / "config.json", launcher, autostart]
+    runtime_paths = [root / "updater.py", root / "install-desktop.py", root / "uninstall.py", root / "config.json", launcher, launcher.with_name("redline-uninstall"), autostart]
     if profile == "omarchy":
         runtime_paths.extend(config / "omarchy/hooks" / (kind + ".d") / "redline-autoupdate" for kind in ("post-boot", "post-update"))
     snapshot(map(str, runtime_paths), state)
-    for name in ("updater.py", "install-desktop.py"):
+    for name in ("updater.py", "install-desktop.py", "uninstall.py"):
         temporary = root / (name + ".new")
         shutil.copy2(source / "scripts" / name, temporary)
         temporary.replace(root / name)
@@ -97,6 +97,9 @@ def register(source, profile, disabled=False):
     temporary.write_text("#!/usr/bin/env bash\nexec " + shlex.quote(sys.executable) + " " + shlex.quote(str(root / "updater.py")) + ' "$@"\n')
     temporary.chmod(0o755)
     temporary.replace(launcher)
+    uninstall = launcher.with_name("redline-uninstall")
+    uninstall.write_text("#!/usr/bin/env bash\nexec " + shlex.quote(sys.executable) + " " + shlex.quote(str(root / "uninstall.py")) + ' "$@"\n')
+    uninstall.chmod(0o755)
     autostart.parent.mkdir(parents=True, exist_ok=True)
     autostart.write_text("[Desktop Entry]\nType=Application\nName=Redline Desktop Updater\nComment=Keep Redline theme and plugins up to date\nExec=" + desktop_quote(sys.executable) + " " + desktop_quote(root / "updater.py") + " --watch\nTerminal=false\nHidden=" + str(not enabled).lower() + "\n")
     if profile == "omarchy":

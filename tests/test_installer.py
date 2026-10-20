@@ -86,7 +86,7 @@ class InstallerTests(unittest.TestCase):
             driver = binary / "driver"
             driver.write_text(FAKE_TOOL)
             driver.chmod(0o755)
-            for name in ("gsettings", "xfconf-query", "plasma-apply-colorscheme", "plasma-apply-wallpaperimage", "pcmanfm", "pcmanfm-qt", "omarchy"):
+            for name in ("gsettings", "xfconf-query", "plasma-apply-colorscheme", "plasma-apply-wallpaperimage", "pcmanfm", "pcmanfm-qt", "omarchy", "hyprctl"):
                 (binary / name).symlink_to(driver)
             env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(config), XDG_DATA_HOME=str(data), XDG_STATE_HOME=str(state), PATH=str(binary) + ":" + os.environ["PATH"], TOOL_LOG=str(base / "tools.jsonl"), REDLINE_NO_START="1", REDLINE_UPDATER_RUNNING="1")
             gtk = config / "gtk-4.0/gtk.css"
@@ -110,6 +110,14 @@ class InstallerTests(unittest.TestCase):
                 if env.get("WAYLAND_DISPLAY") or env.get("DISPLAY"):
                     calls = [json.loads(line) for line in (base / "tools.jsonl").read_text().splitlines()]
                     self.assertIn(["omarchy", "restart", "shell"], calls)
+                restored = subprocess.run(["bash", str(ROOT / "uninstall.sh"), "--yes"], env=env, capture_output=True, text=True)
+                self.assertEqual(restored.returncode, 0, restored.stdout + restored.stderr)
+                self.assertEqual(fastfetch.read_text(), "// existing JSONC\n{}\n")
+                self.assertTrue(gtk.is_symlink())
+                self.assertFalse((config / "omarchy/themes/redline").exists())
+                self.assertFalse((config / "omarchy/plugins/steven.bar").exists())
+                self.assertFalse((config / "omarchy/hooks/post-boot.d/redline-autoupdate").exists())
+                self.assertFalse((home / ".local/bin/redline-update").exists())
                 return
             self.assertFalse((config / "omarchy").exists())
             portable = json.loads(fastfetch.read_text())
