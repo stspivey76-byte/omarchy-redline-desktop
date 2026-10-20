@@ -78,3 +78,7 @@ button.suggested-action { background-color: @accent_bg_color; color: @accent_fg_
   background-color: @accent_bg_color;
   color: @accent_fg_color;
 }
+
+/* Rounded controls and menus; leave application layout and sizing intact. */
+button, entry, searchentry { border-radius: 8px; }
+popover > contents { border-radius: 12px; }

@@ -42,7 +42,7 @@ def stage(source, destination, color):
         else:
             shutil.copy2(origin, destination / name)
     for path in destination.rglob("*"):
-        if path.is_file() and path.suffix in (".toml", ".qml", ".css", ".colors", ".jsonc", ".txt"):
+        if path.is_file() and path.suffix in (".toml", ".qml", ".css", ".colors", ".jsonc", ".txt", ".lua"):
             text = recolor_text(path.read_text(), color)
             if color in ("green", "yellow") and path.suffix == ".css":
                 text = text.replace("@define-color accent_fg_color #ffffff;", "@define-color accent_fg_color #080406;").replace("--accent-fg-color: #ffffff;", "--accent-fg-color: #080406;")

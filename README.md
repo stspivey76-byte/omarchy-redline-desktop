@@ -150,6 +150,14 @@ Restore updates in reverse order. For GNOME, Budgie, Cinnamon, MATE, and Xfce, r
 
 The Omarchy profile keeps its original backup layout at `~/.local/state/omarchy/backups/redline-desktop-*` (or under `XDG_STATE_HOME`). Restore `shell.json`, `shell.toml`, `themes/redline`, and plugins to `~/.config/omarchy/`; restore `fastfetch/`, `gtk-3.0/`, and `gtk-4.0/` to their respective directories under `~/.config/`. The saved Redline hook, if present, belongs at `~/.config/omarchy/hooks/theme-set.d/redline-gtk`. If a replaced file had no previous version, remove the installed file to undo it. Reapply your previous Omarchy theme. Omarchy itself expects the standard `~/.config` directory.
 
+## Window appearance
+
+On Omarchy, Redline includes 18-pixel window corners, soft shadows, slim borders,
+and balanced window spacing. Personal Hyprland settings loaded after the theme
+can override these defaults. GTK 3/4 controls and popovers use matching rounded
+corners across the six palettes. Other desktops retain control of outer window
+corners and shadows. These visual settings do not modify plugins or shell layout.
+
 ## GTK styling
 
 Close and reopen GTK apps after installing or changing styling. The imports in `gtk-3.0/gtk.css` and `gtk-4.0/gtk.css` layer Redline colors over the apps’ base styles; existing custom CSS can take precedence. Icons are unchanged.

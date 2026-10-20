@@ -44,3 +44,9 @@ headerbar { background-color: @headerbar_bg_color; color: @headerbar_fg_color; }
 selection, .view:selected, row:selected { background-color: @accent_bg_color; color: @accent_fg_color; }
 entry:focus { outline-color: @accent_color; }
 button.suggested-action { background-color: @accent_bg_color; color: @accent_fg_color; }
+
+/* Rounded controls and menus; leave application layout and sizing intact. */
+button, entry, searchentry { border-radius: 8px; }
+popover > contents { border-radius: 12px; }
+decoration { border-radius: 18px; }
+headerbar { border-top-left-radius: 18px; border-top-right-radius: 18px; }
