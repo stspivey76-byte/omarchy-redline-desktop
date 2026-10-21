@@ -1,4 +1,4 @@
-"""Color picker and deterministic recoloring of the existing theme/plugin text assets."""
+"""Color picker and deterministic recoloring of the theme text assets."""
 import colorsys
 from contextlib import ExitStack
 import os
@@ -10,7 +10,7 @@ COLORS = {"red": "#d51b36", "blue": "#1b62d5", "green": "#59d51b", "yellow": "#d
 HEX = re.compile(r"#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b")
 ANSI = re.compile(r"(38;2;)(\d+);(\d+);(\d+)")
 RGB_LINE = re.compile(r"(?m)^(\w+=)(\d+),(\d+),(\d+)$")
-PAYLOAD = ("VERSION", "install.sh", "scripts", "theme", "plugins", "hooks", "fastfetch", "shell.json", "shell.toml")
+PAYLOAD = ("VERSION", "install.sh", "scripts", "theme", "hooks")
 
 
 def recolor_rgb(rgb, color):
@@ -74,7 +74,7 @@ def picker(default, desktop, terminal):
         terminal.write("   " + bright + penguin + accent + moon + reset + "\n")
     terminal.write(dim + "\n           Tux. Eclipse. Six colors. Your atmosphere.\n" + reset)
     terminal.write(f"  {dim}DESKTOP{reset}  {bright}{desktop}{reset}\n")
-    terminal.write(f"  {dim}MATCHES{reset}  wallpaper · taskbar · GTK · Fastfetch\n\n")
+    terminal.write(f"  {dim}MATCHES{reset}  wallpaper · theme colors · GTK\n\n")
     entries = []
     for index, (name, rgb) in enumerate(COLORS.items(), 1):
         channels = tuple(int(rgb[i:i + 2], 16) for i in (1, 3, 5))

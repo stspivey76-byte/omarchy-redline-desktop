@@ -135,22 +135,6 @@ class Installer:
                 settings.write(output)
             temporary.replace(settings_path)
         subprocess.run(["bash", str(self.assets / "gtk-style.sh"), "redline", str(self.assets / "theme")], check=True)
-        self.copy(SOURCE / "fastfetch/omarchy-eclipse.txt", self.config / "fastfetch/omarchy-eclipse.txt")
-        target = self.config / "fastfetch/config.jsonc"
-        self.preserve(target)
-        config = json.loads((SOURCE / "fastfetch/config.jsonc").read_text())
-        config["logo"]["source"] = str(self.config / "fastfetch/omarchy-eclipse.txt")
-        # Replace Omarchy-only probes with portable, built-in Fastfetch modules.
-        replacements = iter((
-            {"type": "os", "key": "OS"}, {"type": "de", "key": "Desktop"},
-            {"type": "wm", "key": "Window manager"},
-            {"type": "custom", "key": "Theme", "format": "Redline"},
-            {"type": "packages", "key": "Packages"},
-        ))
-        config["modules"] = [next(replacements) if isinstance(m, dict) and m.get("type") == "command" and "omarchy-" in m.get("text", "") else m for m in config["modules"]]
-        temporary = target.with_suffix(".redline-tmp")
-        temporary.write_text(json.dumps(config, indent=2, ensure_ascii=False) + "\n")
-        temporary.replace(target)
 
     def apply(self):
         wallpaper = self.assets / "theme/backgrounds/tux-crimson-eclipse.png"
@@ -196,7 +180,7 @@ class Installer:
             if self.desktop == "lxqt":
                 self.warn("GTK apps are styled; select your preferred Qt widget style in the desktop's Appearance settings.")
         else:
-            self.warn("No native adapter for this session. GTK and Fastfetch installed; select the wallpaper manually: " + str(wallpaper))
+            self.warn("No native adapter for this session. GTK theme installed; select the wallpaper manually: " + str(wallpaper))
 
     def xfconf(self, channel, prop, value):
         old = self.run("xfconf-query", "-c", channel, "-p", prop)
@@ -252,12 +236,10 @@ def install_profile(args, desktop):
             raise SystemExit("The Omarchy installer requires the standard ~/.config directory")
         installer = Installer(desktop)
         omarchy = Path.home() / ".config/omarchy"
-        for name in ("shell.json", "shell.toml", "themes/redline", "hooks/theme-set.d/redline-gtk",
+        for name in ("themes/redline", "hooks/theme-set.d/redline-gtk",
                      "hooks/post-boot.d/redline-autoupdate", "hooks/post-update.d/redline-autoupdate"):
             installer.preserve(omarchy / name)
-        for plugin in (SOURCE / "plugins").iterdir():
-            installer.preserve(omarchy / "plugins" / plugin.name)
-        for name in ("fastfetch/config.jsonc", "fastfetch/omarchy-eclipse.txt", "gtk-3.0/gtk.css", "gtk-4.0/gtk.css"):
+        for name in ("gtk-3.0/gtk.css", "gtk-4.0/gtk.css"):
             installer.preserve(installer.config / name)
         installer.preserve(Path.home() / ".local/state/omarchy/current")
         for key in ("color-scheme", "gtk-theme", "icon-theme"):
@@ -274,9 +256,9 @@ def install_profile(args, desktop):
     installer.apply()
     preserve_runtime(installer)
     subprocess.run([sys.executable, str(SOURCE / "scripts/register-updater.py"), str(SOURCE), desktop, *(["--disabled"] if args.no_auto_update else [])], check=True)
-    print("Shared theme, GTK styling, wallpaper assets and Fastfetch configuration installed.")
-    print("Omarchy shell/bar plugins and idle settings require the Omarchy profile; other desktop panels are unchanged.")
-    print("Reopen apps to load GTK styling. Fastfetch must already be installed.")
+    print("Theme, GTK styling and wallpaper assets installed.")
+    print("Existing plugins, taskbar layout, idle settings and terminal setup are preserved.")
+    print("Reopen apps to load GTK styling.")
     print("Backup/restore: python3 " + shlex.quote(str(installer.backup / "restore.py")))
     if installer.warnings:
         print(f"Completed with {len(installer.warnings)} notice(s); review the skipped settings above.")

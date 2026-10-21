@@ -66,10 +66,8 @@ def validate_payload(payload, tag):
         raise ValueError("Release tag and bundled VERSION do not match")
     for name in ("install.sh", "scripts/install-omarchy.sh", "hooks/redline-gtk"):
         subprocess.run(["bash", "-n", str(payload / name)], check=True, capture_output=True)
-    json.loads((payload / "shell.json").read_text())
-    json.loads((payload / "fastfetch/config.jsonc").read_text())
-    for manifest in (payload / "plugins").glob("*/manifest.json"):
-        json.loads(manifest.read_text())
+    import tomllib
+    tomllib.loads((payload / "theme/colors.toml").read_text())
     for name in ("scripts/install-desktop.py", "scripts/updater.py", "scripts/register-updater.py", "scripts/palette.py"):
         compile((payload / name).read_text(), str(payload / name), "exec")
 

@@ -98,18 +98,35 @@ class InstallerTests(unittest.TestCase):
             fastfetch = config / "fastfetch/config.jsonc"
             fastfetch.parent.mkdir()
             fastfetch.write_text("// existing JSONC\n{}\n")
+            personal = {}
+            for name, contents in {
+                'omarchy/shell.json': '{"bar":{"layout":{"left":[{"id":"personal.widget"}]}}}',
+                'omarchy/shell.toml': '# personal taskbar styling\n',
+                'omarchy/plugins/personal.widget/Widget.qml': '// personal widget\n',
+                'ghostty/config': 'font-size = 15\n',
+            }.items():
+                path = config / name
+                if profile != 'omarchy' and name.startswith('omarchy/'):
+                    continue
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(contents)
+                personal[path] = contents
             command = ["bash", str(ROOT / "install.sh"), "--desktop", profile]
             first = subprocess.run(command, env=env, capture_output=True, text=True)
             self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+            for path, contents in personal.items():
+                self.assertEqual(path.read_text(), contents)
+            self.assertEqual(fastfetch.read_text(), "// existing JSONC\n{}\n")
+            managed = json.loads((data / 'redline-updater/config.json').read_text())
+            for name in managed['hashes']:
+                self.assertNotIn('/plugins/', name)
+                self.assertNotIn('/fastfetch/', name)
+                self.assertFalse(name.endswith(('/shell.json', '/omarchy/shell.toml')))
             self.assertEqual(real_css.read_text(), original)
             self.assertEqual(gtk.read_text().count("BEGIN REDLINE GTK"), 1)
             self.assertTrue(gtk.read_text().endswith(original))
             if profile == "omarchy":
-                self.assertTrue((config / "omarchy/plugins/steven.bar/Bar.qml").exists())
-                self.assertEqual(len(list((config / "omarchy/plugins").iterdir())), 9)
-                if env.get("WAYLAND_DISPLAY") or env.get("DISPLAY"):
-                    calls = [json.loads(line) for line in (base / "tools.jsonl").read_text().splitlines()]
-                    self.assertIn(["omarchy", "restart", "shell"], calls)
+                self.assertFalse((config / "omarchy/plugins/steven.bar").exists())
                 restored = subprocess.run(["bash", str(ROOT / "uninstall.sh"), "--yes"], env=env, capture_output=True, text=True)
                 self.assertEqual(restored.returncode, 0, restored.stdout + restored.stderr)
                 self.assertEqual(fastfetch.read_text(), "// existing JSONC\n{}\n")
@@ -120,12 +137,6 @@ class InstallerTests(unittest.TestCase):
                 self.assertFalse((home / ".local/bin/redline-update").exists())
                 return
             self.assertFalse((config / "omarchy").exists())
-            portable = json.loads(fastfetch.read_text())
-            self.assertNotIn("omarchy-", json.dumps(portable["modules"]))
-            self.assertEqual(portable["logo"]["source"], str(config / "fastfetch/omarchy-eclipse.txt"))
-            if profile == "generic" and shutil.which("fastfetch"):
-                rendered = subprocess.run(["fastfetch", "--config", str(fastfetch), "--pipe", "true"], env=env, capture_output=True, text=True, timeout=30)
-                self.assertEqual(rendered.returncode, 0, rendered.stderr)
             calls = [json.loads(line) for line in (base / "tools.jsonl").read_text().splitlines()] if (base / "tools.jsonl").exists() else []
             if profile == "kde":
                 self.assertIn(["plasma-apply-colorscheme", "Redline"], calls)

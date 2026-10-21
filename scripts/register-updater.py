@@ -42,7 +42,7 @@ def register(source, profile, disabled=False):
         if staging.exists():
             shutil.rmtree(staging)
         staging.mkdir(parents=True)
-        for name in ("VERSION", "install.sh", "scripts", "theme", "plugins", "hooks", "fastfetch", "shell.json", "shell.toml"):
+        for name in ("VERSION", "install.sh", "scripts", "theme", "hooks"):
             origin = canonical / name
             if origin.is_dir():
                 shutil.copytree(origin, staging / name, ignore=shutil.ignore_patterns("__pycache__"))
@@ -63,9 +63,7 @@ def register(source, profile, disabled=False):
     if profile == "omarchy":
         omarchy = Path.home() / ".config/omarchy"
         manage_tree(source / "theme", omarchy / "themes/redline")
-        for plugin in (source / "plugins").iterdir():
-            manage_tree(plugin, omarchy / "plugins" / plugin.name)
-        managed_roots.extend(str(omarchy / name) for name in ("shell.json", "shell.toml", "hooks/theme-set.d/redline-gtk"))
+        managed_roots.append(str(omarchy / "hooks/theme-set.d/redline-gtk"))
         hashes[str(omarchy / "hooks/theme-set.d/redline-gtk")] = digest(source / "hooks/redline-gtk")
     else:
         assets = root.parent / "redline-desktop"
@@ -79,12 +77,7 @@ def register(source, profile, disabled=False):
             managed_roots.extend(str(config / "xfce4/xfconf/xfce-perchannel-xml" / name) for name in ("xsettings.xml", "xfce4-desktop.xml"))
         elif profile in ("lxqt", "lxde"):
             managed_roots.append(str(config / ("pcmanfm-qt" if profile == "lxqt" else "pcmanfm")))
-    logo = config / "fastfetch/omarchy-eclipse.txt"
-    hashes[str(logo)] = digest(source / "fastfetch/omarchy-eclipse.txt")
-    required = [str(config / "fastfetch/config.jsonc")]
-    if profile == "omarchy":
-        required.extend(str(Path.home() / ".config/omarchy" / name) for name in ("shell.json", "shell.toml"))
-    managed_roots.extend([str(logo), *required])
+    required = []
     for gtk in ("gtk-3.0", "gtk-4.0"):
         required.append(str(config / gtk / "gtk.css"))
         managed_roots.append(str(config / gtk / "gtk.css"))
@@ -101,7 +94,7 @@ def register(source, profile, disabled=False):
     uninstall.write_text("#!/usr/bin/env bash\nexec " + shlex.quote(sys.executable) + " " + shlex.quote(str(root / "uninstall.py")) + ' "$@"\n')
     uninstall.chmod(0o755)
     autostart.parent.mkdir(parents=True, exist_ok=True)
-    autostart.write_text("[Desktop Entry]\nType=Application\nName=Redline Desktop Updater\nComment=Keep Redline theme and plugins up to date\nExec=" + desktop_quote(sys.executable) + " " + desktop_quote(root / "updater.py") + " --watch\nTerminal=false\nHidden=" + str(not enabled).lower() + "\n")
+    autostart.write_text("[Desktop Entry]\nType=Application\nName=Redline Desktop Updater\nComment=Keep the Redline theme up to date\nExec=" + desktop_quote(sys.executable) + " " + desktop_quote(root / "updater.py") + " --watch\nTerminal=false\nHidden=" + str(not enabled).lower() + "\n")
     if profile == "omarchy":
         with tempfile.TemporaryDirectory() as temporary_dir:
             hook = Path(temporary_dir) / "redline-autoupdate"

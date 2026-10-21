@@ -33,25 +33,16 @@ class PaletteTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("unrecognized arguments", result.stderr)
 
-    def test_all_six_palettes_preserve_plugins_and_select_wallpaper(self):
+    def test_all_six_palettes_are_theme_only_and_select_wallpaper(self):
         with tempfile.TemporaryDirectory() as tmp:
             for color in palette.COLORS:
                 with self.subTest(color=color):
                     staged = palette.stage(SOURCE, Path(tmp) / color, color)
                     image = "tux-crimson-eclipse.png" if color == "red" else f"tux-{color}-eclipse.png"
                     self.assertEqual((staged / "theme/backgrounds/tux-crimson-eclipse.png").read_bytes(), (SOURCE / "theme/backgrounds" / image).read_bytes())
-                    self.assertEqual((staged / "shell.json").read_bytes(), (SOURCE / "shell.json").read_bytes())
-                    self.assertEqual(len(list((staged / "plugins").iterdir())), 9)
-                    seed = palette.COLORS[color][1:]
-                    hue = colorsys.rgb_to_hsv(*(int(seed[i:i + 2], 16) / 255 for i in (0, 2, 4)))[0]
-                    for original in (SOURCE / "plugins").rglob("*.qml"):
-                        changed = staged / original.relative_to(SOURCE)
-                        self.assertEqual(palette.HEX.sub("#COLOR", original.read_text()), palette.HEX.sub("#COLOR", changed.read_text()))
-                        for match in palette.HEX.finditer(changed.read_text()):
-                            value = match[0][-6:]
-                            h, s, v = colorsys.rgb_to_hsv(*(int(value[i:i + 2], 16) / 255 for i in (0, 2, 4)))
-                            if s > 0.25 and v > 0.2:
-                                self.assertLess(min(abs(h - hue), 1 - abs(h - hue)), 0.025, f"{color}: {changed}: {match[0]}")
+                    self.assertFalse((staged / "plugins").exists())
+                    self.assertFalse((staged / "shell.json").exists())
+                    self.assertFalse((staged / "fastfetch").exists())
                     css = (staged / "theme/gtk-4.0/gtk.css").read_text()
                     self.assertIn("--accent-fg-color: #080406;" if color in ("yellow", "green") else "--accent-fg-color: #ffffff;", css)
 
