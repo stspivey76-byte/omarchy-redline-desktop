@@ -14,9 +14,25 @@ curl -fsSL https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-des
 
 The installer downloads the latest release, verifies its SHA-256 checksum, opens the six-color menu, and backs up affected theme files/settings. Requires Linux, Bash, Python 3.11+, curl, and sha256sum. It does not install packages.
 
-This repository contains **the theme and color picker only**: wallpapers, Omarchy palette and theme styling, GTK 3/4 colors, a KDE color scheme, and theme update/restore helpers. Your existing plugins, taskbar layout, idle settings, terminal configuration, Fastfetch layout, and shell startup files are preserved. Omarchy applies the chosen palette to its normal theme-aware applications and widgets; custom plugins with fixed colors control their own appearance. The theme includes rounded window corners, shadows, borders and spacing on Omarchy.
+The main installer contains **the theme and color picker only**: wallpapers, Omarchy palette and theme styling, GTK 3/4 colors, a KDE color scheme, and theme update/restore helpers. Your existing plugins, taskbar layout, idle settings, terminal configuration, Fastfetch layout, and shell startup files are preserved. Omarchy applies the chosen palette to its normal theme-aware applications and widgets; custom plugins with fixed colors control their own appearance. The theme includes rounded window corners, shadows, borders and spacing on Omarchy.
 
 Want Steven’s plugins, taskbar and terminal setup too? Use [Redline Rice](https://github.com/stspivey76-byte/omarchy-redline-rice).
+
+## Optional terminal prompt
+
+Steven’s new Powerline Starship prompt uses an crimson username, muted rose directory, dark rose/black separators, a 24-hour clock, and a second-line command indicator. Its colors stay fixed independently of the desktop color picker.
+
+Install it separately from the theme, using an extracted release ZIP or a clone:
+
+```bash
+git clone https://github.com/stspivey76-byte/omarchy-redline-desktop.git
+cd omarchy-redline-desktop
+python3 scripts/install-terminal.py
+```
+
+Requires Starship and a Nerd Font. Omarchy already initializes Starship. On other systems, follow [Starship’s shell setup](https://starship.rs/guide/#step-2-set-up-your-shell-to-use-starship). If you set `STARSHIP_CONFIG`, point it to `~/.config/starship.toml` (or your XDG config path). Open a new terminal afterward.
+
+The prompt installer backs up your previous config and prints a restore command. It does not change terminal emulator settings or shell startup files. The normal theme installer and updater leave your prompt untouched. Restore it separately using the printed command; the theme uninstaller does not restore the optional prompt.
 
 ## Upgrading from the old desktop bundle
 
