@@ -62,7 +62,7 @@ class PaletteTests(unittest.TestCase):
                     self.assertIn("--accent-fg-color: #080406;" if color in ("yellow", "green") else "--accent-fg-color: #ffffff;", css)
 
     def test_picker_accepts_number_name_default_and_cancel(self):
-        for inputs, expected in ((["2\n"], "blue"), (["pink\n"], "pink"), (["7\n"], "halloween"), (["8\n"], "thanksgiving"), (["9\n"], "christmas"), (["thanksgiving\n"], "thanksgiving"), (["xmas\n"], "christmas"), (["halloween\n"], "halloween"), (["\n"], "purple"), (["invalid\n", "6\n"], "purple")):
+        for inputs, expected in ((["2\n"], "blue"), (["pink\n"], "pink"), (["7\n"], "halloween"), (["8\n"], "thanksgiving"), (["9\n"], "christmas"), (["thanksgiving\n"], "thanksgiving"), (["xmas\n"], "christmas"), (["Valentine's Day\n"], "valentines"), (["St. Patrick's Day\n"], "st-patricks"), (["Mother's Day\n"], "mothers-day"), (["July 4th\n"], "independence-day"), (["21\n"], "veterans-day"), (["Valentine’s Day\n"], "valentines"), (["halloween\n"], "halloween"), (["\n"], "purple"), (["invalid\n", "6\n"], "purple")):
             terminal = Mock()
             terminal.readline.side_effect = inputs
             self.assertEqual(palette.picker("purple", "gnome", terminal), expected)

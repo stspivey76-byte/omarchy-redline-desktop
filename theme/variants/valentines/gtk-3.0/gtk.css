@@ -1,0 +1,52 @@
+/* Redline: original color overrides layered over Adwaita. */
+@define-color accent_color #f48599;
+@define-color accent_bg_color #f26b9b;
+@define-color accent_fg_color #ffffff;
+@define-color window_bg_color #1c0b18;
+@define-color window_fg_color #e8e2df;
+@define-color view_bg_color #120710;
+@define-color view_fg_color #f4eeeb;
+@define-color headerbar_bg_color #321b34;
+@define-color headerbar_fg_color #f4eeeb;
+@define-color headerbar_border_color #0b040a;
+@define-color headerbar_backdrop_color #1c0b18;
+@define-color sidebar_bg_color #11090c;
+@define-color sidebar_fg_color #e8e2df;
+@define-color sidebar_backdrop_color #1c0b18;
+@define-color secondary_sidebar_bg_color #1c0b18;
+@define-color secondary_sidebar_fg_color #e8e2df;
+@define-color card_bg_color #321b34;
+@define-color card_fg_color #f4eeeb;
+@define-color dialog_bg_color #321b34;
+@define-color dialog_fg_color #f4eeeb;
+@define-color popover_bg_color #321b34;
+@define-color popover_fg_color #f4eeeb;
+@define-color shade_color rgba(0, 0, 0, 0.35);
+@define-color borders #522339;
+@define-color theme_bg_color #1c0b18;
+@define-color theme_fg_color #e8e2df;
+@define-color theme_base_color #120710;
+@define-color theme_text_color #f4eeeb;
+@define-color theme_selected_bg_color #f26b9b;
+@define-color theme_selected_fg_color #ffffff;
+@define-color theme_unfocused_bg_color #1c0b18;
+@define-color theme_unfocused_fg_color #a69fa6;
+@define-color theme_unfocused_base_color #120710;
+@define-color theme_unfocused_text_color #a69fa6;
+@define-color theme_unfocused_selected_bg_color #522339;
+@define-color theme_unfocused_selected_fg_color #f4eeeb;
+
+/* GTK widgets that do not use the libadwaita palette. */
+window, .background { background-color: @window_bg_color; color: @window_fg_color; }
+headerbar { background-color: @headerbar_bg_color; color: @headerbar_fg_color; }
+.view, textview text { background-color: @view_bg_color; color: @view_fg_color; }
+.navigation-sidebar { background-color: @sidebar_bg_color; color: @sidebar_fg_color; }
+selection, .view:selected, row:selected { background-color: @accent_bg_color; color: @accent_fg_color; }
+entry:focus { outline-color: @accent_color; }
+button.suggested-action { background-color: @accent_bg_color; color: @accent_fg_color; }
+
+/* Rounded controls and menus; leave application layout and sizing intact. */
+button, entry, searchentry { border-radius: 8px; }
+popover > contents { border-radius: 12px; }
+decoration { border-radius: 18px; }
+headerbar { border-top-left-radius: 18px; border-top-right-radius: 18px; }

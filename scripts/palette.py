@@ -9,7 +9,35 @@ import shutil
 import tomllib
 
 COLORS = {"red": "#d51b36", "blue": "#1b62d5", "green": "#59d51b", "yellow": "#d5af1b", "pink": "#d51b94", "purple": "#891bd5", "halloween": "#ff8c24", "thanksgiving": "#e6a03c", "christmas": "#e5484d"}
-SEASONAL = ("halloween", "thanksgiving", "christmas")
+COLORS.update({
+    'new-year': '#e8c76a',
+    'valentines': '#f26b9b',
+    'st-patricks': '#58c783',
+    'easter': '#c196ed',
+    'earth-day': '#70c79b',
+    'mothers-day': '#ed91b3',
+    'memorial-day': '#7aa8df',
+    'fathers-day': '#7daee7',
+    'juneteenth': '#e95c67',
+    'independence-day': '#eb6473',
+    'labor-day': '#e8ad65',
+    'veterans-day': '#89acdb',
+})
+SEASONAL = tuple(COLORS)[6:]
+LABELS = {
+    'new-year': "New Year's Day",
+    'valentines': "Valentine's Day",
+    'st-patricks': "St. Patrick's Day",
+    'easter': 'Easter',
+    'earth-day': 'Earth Day',
+    'mothers-day': "Mother's Day",
+    'memorial-day': 'Memorial Day',
+    'fathers-day': "Father's Day",
+    'juneteenth': 'Juneteenth',
+    'independence-day': 'Independence Day',
+    'labor-day': 'Labor Day',
+    'veterans-day': 'Veterans Day',
+}
 HEX = re.compile(r"#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b")
 ANSI = re.compile(r"(38;2;)(\d+);(\d+);(\d+)")
 RGB_LINE = re.compile(r"(?m)^(\w+=)(\d+),(\d+),(\d+)$")
@@ -98,9 +126,9 @@ def picker(default, desktop, terminal):
         channels = tuple(int(rgb[i:i + 2], 16) for i in (1, 3, 5))
         swatch = "\033[38;2;" + ";".join(map(str, channels)) + "m●\033[0m"
         selected = name == default
-        entries.append(f"{'›' if selected else ' '} {index}  {swatch}  {bright if selected else ''}{name.title():<12}{reset}" + (accent + "CURRENT" + reset if selected else "       "))
-    for index in range(0, len(entries), 2):
-        terminal.write("  " + entries[index] + "      " + (entries[index + 1] if index + 1 < len(entries) else "") + "\n")
+        entries.append(f"{'›' if selected else ' '} {index:>2}  {swatch}  {bright if selected else ''}{LABELS.get(name, name.title()):<20}{reset}" + (accent + "CURRENT" + reset if selected else "       "))
+    for entry in entries:
+        terminal.write("  " + entry + "\n")
     terminal.write(dim + "  Settings backed up · Updates remember your color\n" + reset)
     while True:
         terminal.write(f"\n  Choose 1–{len(COLORS)} or a color name [Enter: {default}, q: cancel]: ")
@@ -109,8 +137,11 @@ def picker(default, desktop, terminal):
         if not line:
             raise SystemExit("Installation cancelled (terminal closed).")
         answer = line.strip().lower()
-        if answer == "xmas":
-            answer = "christmas"
+        aliases = {"xmas": "christmas", "valentine": "valentines", "valentines-day": "valentines", "july-4th": "independence-day", "july-4": "independence-day", "4th-of-july": "independence-day", "new-years": "new-year", "st-patricks-day": "st-patricks"}
+        normalize = lambda value: re.sub(r"[^a-z0-9]+", "-", value.lower().replace("'", "").replace("’", "")).strip("-")
+        labels = {normalize(label): name for name, label in LABELS.items()}
+        answer = normalize(answer)
+        answer = aliases.get(answer, labels.get(answer, answer))
         if answer in ("q", "quit", "cancel"):
             raise SystemExit("Installation cancelled.")
         if not answer:
@@ -119,7 +150,7 @@ def picker(default, desktop, terminal):
             return answer
         if answer in tuple(map(str, range(1, len(COLORS) + 1))):
             return tuple(COLORS)[int(answer) - 1]
-        terminal.write("  Please choose red, blue, green, yellow, pink, purple, halloween, thanksgiving, or christmas (xmas).\n")
+        terminal.write("  Please choose a listed number, color, or holiday name.\n")
 
 
 def choose_color(default, desktop):

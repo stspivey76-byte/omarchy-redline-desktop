@@ -1,6 +1,6 @@
 # Redline Theme
 
-Steven’s black and red theme with Tux/eclipse wallpapers and a terminal color picker. Choose **red, blue, green, yellow, pink, purple, Halloween, Thanksgiving, or Christmas**.
+Steven’s black and red theme with Tux/eclipse wallpapers and a terminal color picker. Choose from **six classic colors and 15 holiday themes**, each with a Tux wallpaper and matching desktop colors.
 
 ![Redline wallpaper](theme/backgrounds/tux-crimson-eclipse.png)
 
@@ -12,7 +12,7 @@ Run in a terminal as your normal user:
 curl -fsSL https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-desktop/main/download.sh | bash
 ```
 
-The installer downloads the latest release, verifies its SHA-256 checksum, opens the nine-option menu, and backs up affected theme files/settings. Requires Linux, Bash, Python 3.11+, curl, and sha256sum. It does not install packages.
+The installer downloads the latest release, verifies its SHA-256 checksum, opens the 21-option menu, and backs up affected theme files/settings. Requires Linux, Bash, Python 3.11+, curl, and sha256sum. It does not install packages.
 
 The main installer contains **the theme and color picker only**: wallpapers, Omarchy palette and theme styling, GTK 3/4 colors, a KDE color scheme, and theme update/restore helpers. Your existing plugins, taskbar layout, idle settings, terminal configuration, Fastfetch layout, and shell startup files are preserved. Omarchy applies the chosen palette to its normal theme-aware applications and widgets; custom plugins with fixed colors control their own appearance. The theme includes rounded window corners, shadows, borders and spacing on Omarchy.
 
@@ -84,7 +84,7 @@ Installer backups are stored under `${XDG_STATE_HOME:-~/.local/state}/redline-de
 
 ## Validation and attribution
 
-Run `python3 -m unittest discover -s tests -v`. Checks cover desktop adapters, nine-option selection, theme-only payloads, preservation of personal plugins/taskbar/terminal/Fastfetch files, backup/restore, updater checksums, offline repair and rollback. Desktop tools are mocked in isolated test homes.
+Run `python3 -m unittest discover -s tests -v`. Checks cover desktop adapters, 21-option selection, theme-only payloads, preservation of personal plugins/taskbar/terminal/Fastfetch files, backup/restore, updater checksums, offline repair and rollback. Desktop tools are mocked in isolated test homes.
 
 The full rice was separated into its own repository. Historical releases before 2.0.0 still contain the previous desktop bundle. Wallpaper redistribution terms have not been independently established; no new asset license is asserted. See [wallpaper notes](docs/wallpaper-color-prompts.md).
 
@@ -101,3 +101,24 @@ Choose **8 — Thanksgiving** for amber-gold accents, warm brown surfaces, autum
 ![Thanksgiving Tux wallpaper](theme/backgrounds/tux-thanksgiving-eclipse.png)
 
 ![Christmas Tux wallpaper](theme/backgrounds/tux-christmas-eclipse.png)
+
+### More holiday vibes
+
+Every holiday option pairs a dedicated Tux/eclipse wallpaper with matching theme, GTK, KDE, and theme-aware shell colors. Type a listed number or holiday name; names such as `Valentine's Day`, `St. Patrick's Day`, `Mother's Day`, and `July 4th` also work. The updater remembers your selection.
+
+| Option | Holiday | Matching colors |
+| --- | --- | --- |
+| 10 | [New Year's Day](theme/backgrounds/tux-new-year-eclipse.png) | midnight navy, champagne gold and silver |
+| 11 | [Valentine's Day](theme/backgrounds/tux-valentines-eclipse.png) | rose pink, burgundy and lavender |
+| 12 | [St. Patrick's Day](theme/backgrounds/tux-st-patricks-eclipse.png) | emerald green, deep forest green and warm gold |
+| 13 | [Easter](theme/backgrounds/tux-easter-eclipse.png) | pastel lavender, mint green and soft gold |
+| 14 | [Earth Day](theme/backgrounds/tux-earth-day-eclipse.png) | forest green, ocean teal and sky blue |
+| 15 | [Mother's Day](theme/backgrounds/tux-mothers-day-eclipse.png) | blush pink, warm ivory and lavender |
+| 16 | [Memorial Day](theme/backgrounds/tux-memorial-day-eclipse.png) | solemn navy blue, muted crimson and ivory |
+| 17 | [Father's Day](theme/backgrounds/tux-fathers-day-eclipse.png) | denim blue, navy and warm amber |
+| 18 | [Juneteenth](theme/backgrounds/tux-juneteenth-eclipse.png) | deep red, rich blue, white and gold |
+| 19 | [Independence Day](theme/backgrounds/tux-independence-day-eclipse.png) | red, white and navy blue |
+| 20 | [Labor Day](theme/backgrounds/tux-labor-day-eclipse.png) | copper gold, slate blue and warm charcoal |
+| 21 | [Veterans Day](theme/backgrounds/tux-veterans-day-eclipse.png) | navy blue, muted gold and ivory |
+
+These popular celebrations expand the original Halloween, Thanksgiving, and Christmas options. The existing menu numbers 1–9 stay the same.
