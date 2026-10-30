@@ -13,7 +13,7 @@ jobs:
         include:
           - image: ubuntu:22.04
             prepare: apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 bash
-          - image: debian:bullseye-slim
+          - image: debian:bookworm-slim
             prepare: apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 bash
           - image: fedora:43
             prepare: dnf install -y python3 bash

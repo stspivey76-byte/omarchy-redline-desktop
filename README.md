@@ -89,7 +89,7 @@ Standalone WMs receive `~/.local/bin/redline-wallpaper`. Add this command to the
 
 ### Validation
 
-The Linux compatibility workflow runs the installer/adapters/updater/restore tests inside Ubuntu 22.04, Debian Bullseye, Fedora 43, openSUSE Tumbleweed, Alpine 3.22 (musl), and Arch containers. These check real distro runtimes; desktop settings services are mocked inside the containers. They do not constitute visual tests of every desktop. The Python 3.8 minimum is also checked locally with an isolated interpreter.
+The Linux compatibility workflow runs the installer/adapters/updater/restore tests inside Ubuntu 22.04, Debian 12 Bookworm, Fedora 43, openSUSE Tumbleweed, Alpine 3.22 (musl), and Arch containers. These check real distro runtimes; desktop settings services are mocked inside the containers. They do not constitute visual tests of every desktop. The Python 3.8 minimum is also checked locally with an isolated interpreter.
 
 ## Updates and backups
 
