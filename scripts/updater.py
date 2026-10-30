@@ -62,7 +62,7 @@ def fetch(url, limit):
 
 
 def validate_payload(payload, tag):
-    if (payload / "VERSION").read_text().strip() != tag:
+    if version((payload / "VERSION").read_text().strip()) != version(tag):
         raise ValueError("Release tag and bundled VERSION do not match")
     for name in ("install.sh", "scripts/install-omarchy.sh", "hooks/redline-gtk"):
         subprocess.run(["bash", "-n", str(payload / name)], check=True, capture_output=True)

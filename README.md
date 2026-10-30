@@ -93,6 +93,8 @@ The Linux compatibility workflow runs the installer/adapters/updater/restore tes
 
 ## Updates and backups
 
+When upgrading from v2.4.0 or earlier, rerun the install command once: older updaters reject GitHub’s `v`-prefixed release tag when the bundled VERSION omits that prefix. This release accepts both forms.
+
 The installer enables hourly release checks and five-minute managed theme-file repairs by default. Updates and repairs retain your selected color. They manage theme assets, GTK imports and updater files; they do not manage taskbar layouts or plugins. Theme repairs can overwrite edits to bundled theme files. To keep personal theme edits, disable repair or automatic updates.
 
 ```bash

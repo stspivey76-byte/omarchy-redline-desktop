@@ -54,6 +54,12 @@ class UpdaterTests(unittest.TestCase):
                 self.assertEqual(updater.read_json(agent.config_path)["color"], color)
                 self.assertEqual(updater.broken_files(updater.read_json(agent.config_path)), [])
 
+    def test_github_v_prefixed_tag_matches_bundled_version(self):
+        bundled = (SOURCE / "VERSION").read_text().strip()
+        updater.validate_payload(SOURCE, "v" + bundled.lstrip("v"))
+        with self.assertRaisesRegex(ValueError, "do not match"):
+            updater.validate_payload(SOURCE, "v0.0.0")
+
     def test_repairs_modified_and_missing_files_from_cached_release(self):
         expected = self.colors.read_bytes()
         self.colors.write_text("damaged")
