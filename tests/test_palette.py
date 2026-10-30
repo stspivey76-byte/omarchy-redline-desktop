@@ -41,16 +41,16 @@ class PaletteTests(unittest.TestCase):
                     image = "tux-crimson-eclipse.png" if color == "red" else f"tux-{color}-eclipse.png"
                     self.assertEqual((staged / "theme/backgrounds/tux-crimson-eclipse.png").read_bytes(), (SOURCE / "theme/backgrounds" / image).read_bytes())
                     if color in palette.SEASONAL:
-                        import tomllib
-                        colors = tomllib.loads((staged / "theme/colors.toml").read_text())
+                        from theme_colors import read_colors
+                        colors = read_colors(staged / "theme/colors.toml")
                         self.assertEqual(colors["accent"], palette.COLORS[color])
                         self.assertIn(colors["accent"], (staged / "theme/gtk-3.0/gtk.css").read_text())
                         rgb = ",".join(str(int(colors["accent"][i:i+2], 16)) for i in (1, 3, 5))
                         self.assertIn("DecorationFocus=" + rgb, (staged / "theme/Redline.colors").read_text())
                         self.assertEqual((staged / "theme/variants" / color / "colors.toml").read_bytes(), (SOURCE / "theme/variants" / color / "colors.toml").read_bytes())
                     if color == "halloween":
-                        import tomllib
-                        colors = tomllib.loads((staged / "theme/colors.toml").read_text())
+                        from theme_colors import read_colors
+                        colors = read_colors(staged / "theme/colors.toml")
                         self.assertEqual(colors["accent"], "#ff8c24")
                         self.assertEqual(colors["magenta"], "#c780e8")
                         self.assertIn("#ff8c24", (staged / "theme/gtk-3.0/gtk.css").read_text())
@@ -119,7 +119,7 @@ class PaletteTests(unittest.TestCase):
                     self.fail("Piped installer did not finish: " + transcript.decode(errors="replace"))
                 if status is None:
                     _, status = os.waitpid(pid, 0)
-                self.assertEqual(os.waitstatus_to_exitcode(status), 0, transcript.decode(errors="replace"))
+                self.assertEqual((os.WEXITSTATUS(status) if os.WIFEXITED(status) else -os.WTERMSIG(status)), 0, transcript.decode(errors="replace"))
                 self.assertTrue(answered)
                 saved = json.loads((home / "data/redline-updater/config.json").read_text())
                 self.assertEqual(saved["color"], color)

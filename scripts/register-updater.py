@@ -28,11 +28,11 @@ def register(source, profile, disabled=False):
     root.mkdir(parents=True, exist_ok=True)
     launcher = Path.home() / ".local/bin/redline-update"
     autostart = config / "autostart/redline-updater.desktop"
-    runtime_paths = [root / "updater.py", root / "install-desktop.py", root / "uninstall.py", root / "config.json", launcher, launcher.with_name("redline-uninstall"), autostart]
+    runtime_paths = [root / "updater.py", root / "install-desktop.py", root / "uninstall.py", root / "theme_colors.py", root / "compatibility.py", root / "config.json", launcher, launcher.with_name("redline-uninstall"), autostart]
     if profile == "omarchy":
         runtime_paths.extend(config / "omarchy/hooks" / (kind + ".d") / "redline-autoupdate" for kind in ("post-boot", "post-update"))
     snapshot(map(str, runtime_paths), state)
-    for name in ("updater.py", "install-desktop.py", "uninstall.py"):
+    for name in ("updater.py", "install-desktop.py", "uninstall.py", "theme_colors.py", "compatibility.py"):
         temporary = root / (name + ".new")
         shutil.copy2(source / "scripts" / name, temporary)
         temporary.replace(root / name)
@@ -70,6 +70,12 @@ def register(source, profile, disabled=False):
         manage_tree(source / "theme", assets / "theme")
         managed_roots.append(str(assets / "gtk-style.sh"))
         hashes[str(assets / "gtk-style.sh")] = digest(source / "hooks/redline-gtk")
+        hashes[str(root.parent / "color-schemes/Redline.colors")] = digest(source / "theme/Redline.colors")
+        managed_roots.append(str(root.parent / "color-schemes/Redline.colors"))
+        if profile in ("hyprland", "sway", "x11", "generic"):
+            helper = assets / "apply-wallpaper.py"
+            hashes[str(helper)] = digest(source / "scripts/apply-wallpaper.py")
+            managed_roots.extend(map(str, (helper, Path.home() / ".local/bin/redline-wallpaper")))
         if profile == "kde":
             hashes[str(root.parent / "color-schemes/Redline.colors")] = digest(source / "theme/Redline.colors")
             managed_roots.extend(str(path) for path in (root.parent / "color-schemes/Redline.colors", config / "kdeglobals", config / "plasma-org.kde.plasma.desktop-appletsrc"))

@@ -33,6 +33,8 @@ elif name == "xfconf-query":
         print("/backdrop/screen0/monitor0/workspace0/last-image\\n/backdrop/screen0/monitor1/workspace0/last-image\\n/unrelated")
     elif "-s" not in args:
         print("original")
+elif name == "swaymsg":
+    print('[{"success": true}]')
 elif name == "omarchy" and args[:2] == ["hook", "install"]:
     import shutil
     target = Path.home() / ".config/omarchy/hooks" / (args[2] + ".d")
@@ -48,14 +50,14 @@ class InstallerTests(unittest.TestCase):
                                   ("X-Cinnamon", "cinnamon"), ("MATE", "mate"),
                                   ("Budgie:GNOME", "budgie"), ("LXQt", "lxqt"),
                                   ("LXDE", "lxde"), ("Hyprland", "omarchy"),
-                                  ("sway", "generic")):
+                                  ("sway", "sway")):
             with self.subTest(session=session):
                 self.assertEqual(installer.detect_desktop({"XDG_CURRENT_DESKTOP": session}, lambda _: "/bin/tool"), expected)
-        self.assertEqual(installer.detect_desktop({"XDG_CURRENT_DESKTOP": "Hyprland"}, lambda _: None), "generic")
+        self.assertEqual(installer.detect_desktop({"XDG_CURRENT_DESKTOP": "Hyprland"}, lambda _: None), "hyprland")
         self.assertEqual(installer.detect_desktop({}, lambda _: "/bin/tool"), "generic")
         self.assertEqual(installer.detect_desktop({"XDG_CURRENT_DESKTOP": "GNOME", "HYPRLAND_INSTANCE_SIGNATURE": "stale"}, lambda _: "/bin/tool"), "gnome")
-        self.assertEqual(installer.detect_desktop({"XDG_CURRENT_DESKTOP": "sway", "HYPRLAND_INSTANCE_SIGNATURE": "stale"}, lambda _: "/bin/tool"), "generic")
-        self.assertEqual(installer.detect_desktop({"DESKTOP_SESSION": "ubuntu-sway"}, lambda _: "/bin/tool"), "generic")
+        self.assertEqual(installer.detect_desktop({"XDG_CURRENT_DESKTOP": "sway", "HYPRLAND_INSTANCE_SIGNATURE": "stale"}, lambda _: "/bin/tool"), "sway")
+        self.assertEqual(installer.detect_desktop({"DESKTOP_SESSION": "ubuntu-sway"}, lambda _: "/bin/tool"), "sway")
         self.assertEqual(installer.detect_desktop({"XDG_CURRENT_DESKTOP": "GNOME", "DESKTOP_SESSION": "plasma"}, lambda _: "/bin/tool"), "gnome")
         self.assertEqual(installer.detect_desktop({"XDG_CURRENT_DESKTOP": "Hyprland", "DESKTOP_SESSION": "gnome"}, lambda _: "/bin/tool"), "omarchy")
 
@@ -86,7 +88,7 @@ class InstallerTests(unittest.TestCase):
             driver = binary / "driver"
             driver.write_text(FAKE_TOOL)
             driver.chmod(0o755)
-            for name in ("gsettings", "xfconf-query", "plasma-apply-colorscheme", "plasma-apply-wallpaperimage", "pcmanfm", "pcmanfm-qt", "omarchy", "hyprctl"):
+            for name in ("gsettings", "xfconf-query", "plasma-apply-colorscheme", "plasma-apply-wallpaperimage", "pcmanfm", "pcmanfm-qt", "omarchy", "hyprctl", "swaymsg", "swaybg", "feh", "swww"):
                 (binary / name).symlink_to(driver)
             env = dict(os.environ, HOME=str(home), XDG_CONFIG_HOME=str(config), XDG_DATA_HOME=str(data), XDG_STATE_HOME=str(state), PATH=str(binary) + ":" + os.environ["PATH"], TOOL_LOG=str(base / "tools.jsonl"), REDLINE_NO_START="1", REDLINE_UPDATER_RUNNING="1")
             gtk = config / "gtk-4.0/gtk.css"
@@ -148,6 +150,9 @@ class InstallerTests(unittest.TestCase):
                 self.assertTrue(any(c[:2] == ["gsettings", "set"] for c in calls))
             elif profile in ("lxqt", "lxde"):
                 self.assertTrue(any(c[0].startswith("pcmanfm") for c in calls))
+            elif profile in ("sway", "hyprland", "x11"):
+                self.assertIn("Wallpaper applied", first.stdout)
+                self.assertTrue((home / ".local/bin/redline-wallpaper").is_file())
             else:
                 self.assertIn("No native adapter", first.stdout)
             initial = next((state / "redline-desktop/backups").iterdir())

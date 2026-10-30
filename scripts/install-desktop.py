@@ -12,7 +12,7 @@ import sys
 import tempfile
 
 SOURCE = Path(__file__).resolve().parent.parent
-PROFILES = ("auto", "omarchy", "gnome", "kde", "xfce", "cinnamon", "mate", "budgie", "lxqt", "lxde", "generic")
+PROFILES = ("auto", "omarchy", "gnome", "kde", "xfce", "cinnamon", "mate", "budgie", "lxqt", "lxde", "hyprland", "sway", "x11", "generic")
 
 
 def detect_desktop(env=None, which=shutil.which):
@@ -31,6 +31,12 @@ def detect_desktop(env=None, which=shutil.which):
         return "gnome"
     if ("hyprland" in session or (not session.strip() and env.get("HYPRLAND_INSTANCE_SIGNATURE"))) and which("omarchy"):
         return "omarchy"
+    if "hyprland" in session or (not session.strip() and env.get("HYPRLAND_INSTANCE_SIGNATURE")):
+        return "hyprland"
+    if "sway" in session or (not session.strip() and env.get("SWAYSOCK")):
+        return "sway"
+    if any(name in session for name in ("i3", "bspwm", "openbox", "awesome", "qtile", "fluxbox", "icewm")):
+        return "x11"
     return "generic"
 
 
@@ -118,6 +124,8 @@ class Installer:
             self.assets.unlink()
         self.copy(SOURCE / "theme", self.assets / "theme")
         self.copy(SOURCE / "hooks/redline-gtk", self.assets / "gtk-style.sh")
+        # Export a native KDE/Qt scheme even when a desktop has no adapter.
+        self.copy(SOURCE / "theme/Redline.colors", self.data / "color-schemes/Redline.colors")
         for version in ("3.0", "4.0"):
             self.preserve(self.config / ("gtk-" + version) / "gtk.css")
             settings_path = self.config / ("gtk-" + version) / "settings.ini"
@@ -179,8 +187,29 @@ class Installer:
                 self.run(manager, "--wallpaper-mode=zoom", "--set-wallpaper", str(wallpaper))
             if self.desktop == "lxqt":
                 self.warn("GTK apps are styled; select your preferred Qt widget style in the desktop's Appearance settings.")
+        elif self.desktop in ("hyprland", "sway", "x11", "generic"):
+            self.standalone_wallpaper(wallpaper)
         else:
             self.warn("No native adapter for this session. GTK theme installed; select the wallpaper manually: " + str(wallpaper))
+
+    def standalone_wallpaper(self, wallpaper):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("redline_wallpaper", SOURCE / "scripts/apply-wallpaper.py")
+        helper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helper)
+        self.copy(SOURCE / "scripts/apply-wallpaper.py", self.assets / "apply-wallpaper.py")
+        launcher = Path.home() / ".local/bin/redline-wallpaper"
+        self.preserve(launcher)
+        launcher.parent.mkdir(parents=True, exist_ok=True)
+        if launcher.is_symlink():
+            launcher.unlink()
+        launcher.write_text("#!/usr/bin/env bash\nexec " + shlex.quote(sys.executable) + " " + shlex.quote(str(self.assets / "apply-wallpaper.py")) + ' "$@"\n')
+        launcher.chmod(0o755)
+        if helper.apply(wallpaper, self.desktop):
+            print("Wallpaper applied for " + self.desktop)
+        else:
+            self.warn("No native adapter or running wallpaper backend for this session. GTK colors and palette installed; select the wallpaper manually: " + str(wallpaper))
+        print("To persist wallpaper in your WM's startup commands, run: " + shlex.quote(str(launcher)))
 
     def xfconf(self, channel, prop, value):
         old = self.run("xfconf-query", "-c", channel, "-p", prop)
@@ -195,6 +224,7 @@ def main():
     global SOURCE
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--desktop", choices=PROFILES, default="auto")
+    parser.add_argument("--check", action="store_true", help="Print distribution, session and prerequisites without making changes")
     parser.add_argument("--detect", action="store_true", help="Print detected profile without making changes")
     parser.add_argument("--no-auto-update", action="store_true", help="Install without enabling automatic updates")
     # Accept the old updater argument only during migration from older releases.
@@ -202,6 +232,9 @@ def main():
         parser.add_argument("--color", help=argparse.SUPPRESS)
     args = parser.parse_args()
     desktop = detect_desktop() if args.desktop == "auto" else args.desktop
+    if args.check:
+        from compatibility import check
+        raise SystemExit(check(desktop))
     if args.detect:
         print(desktop)
         return
@@ -265,7 +298,7 @@ def install_profile(args, desktop):
 
 
 if __name__ == "__main__":
-    if os.environ.get("REDLINE_UPDATER_RUNNING") or any(flag in sys.argv for flag in ("--detect", "--help", "-h")):
+    if os.environ.get("REDLINE_UPDATER_RUNNING") or any(flag in sys.argv for flag in ("--detect", "--check", "--help", "-h")):
         main()
     else:
         from updater import lock, paths

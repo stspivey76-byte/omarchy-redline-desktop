@@ -6,7 +6,10 @@ import os
 from pathlib import Path
 import re
 import shutil
-import tomllib
+import sys
+# Tests also load this module directly by filename.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from theme_colors import read_colors
 
 COLORS = {"red": "#d51b36", "blue": "#1b62d5", "green": "#59d51b", "yellow": "#d5af1b", "pink": "#d51b94", "purple": "#891bd5", "halloween": "#ff8c24", "thanksgiving": "#e6a03c", "christmas": "#e5484d"}
 COLORS.update({
@@ -48,8 +51,8 @@ PAYLOAD = ("VERSION", "install.sh", "scripts", "theme", "hooks")
 def recolor_rgb(rgb, color):
     if color in SEASONAL:
         root = Path(__file__).resolve().parent.parent / "theme"
-        base = tomllib.loads((root / "colors.toml").read_text())
-        festive = tomllib.loads((root / "variants" / color / "colors.toml").read_text())
+        base = read_colors(root / "colors.toml")
+        festive = read_colors(root / "variants" / color / "colors.toml")
         for key, original in base.items():
             if key == "mode":
                 continue

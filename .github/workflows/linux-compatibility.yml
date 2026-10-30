@@ -1,0 +1,36 @@
+name: Linux compatibility
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  distributions:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ubuntu:22.04
+            prepare: apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 bash
+          - image: debian:bullseye-slim
+            prepare: apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 bash
+          - image: fedora:43
+            prepare: dnf install -y python3 bash
+          - image: opensuse/tumbleweed
+            prepare: zypper --non-interactive install python3 bash
+          - image: alpine:3.22
+            prepare: apk add --no-cache python3 bash
+          - image: archlinux:base
+            prepare: pacman -Syu --noconfirm python bash
+    name: ${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test installer, palettes, desktop adapters, updates and restore
+        env:
+          IMAGE: ${{ matrix.image }}
+          PREPARE: ${{ matrix.prepare }}
+        run: |
+          docker run --rm --volume "$GITHUB_WORKSPACE:/workspace:ro" --workdir /workspace \
+            --env PYTHONDONTWRITEBYTECODE=1 --env PREPARE "$IMAGE" \
+            sh -c 'eval "$PREPARE" && python3 -m unittest discover -s tests -v'

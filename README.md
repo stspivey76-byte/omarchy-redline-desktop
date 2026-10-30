@@ -12,7 +12,7 @@ Run in a terminal as your normal user:
 curl -fsSL https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-desktop/main/download.sh | bash
 ```
 
-The installer downloads the latest release, verifies its SHA-256 checksum, opens the 21-option menu, and backs up affected theme files/settings. Requires Linux, Bash, Python 3.11+, curl, and sha256sum. It does not install packages.
+The installer downloads the latest release, verifies its SHA-256 checksum, opens the 21-option menu, and backs up affected theme files/settings. Requires Linux, Bash, and Python 3.8+. The downloader uses curl, wget, or Python HTTPS and verifies SHA-256 with Python; no pip packages, pacman, or systemd are required. It does not install packages.
 
 The main installer contains **the theme and color picker only**: wallpapers, Omarchy palette and theme styling, GTK 3/4 colors, a KDE color scheme, and theme update/restore helpers. Your existing plugins, taskbar layout, idle settings, terminal configuration, Fastfetch layout, and shell startup files are preserved. Omarchy applies the chosen palette to its normal theme-aware applications and widgets; custom plugins with fixed colors control their own appearance. The theme includes rounded window corners, shadows, borders and spacing on Omarchy.
 
@@ -44,12 +44,15 @@ Existing plugins and taskbar settings from older releases are left in place. Thi
 
 | Desktop | Theme integration |
 | --- | --- |
-| Omarchy / Hyprland | Theme palette, wallpaper, GTK colors, window appearance, generated application colors |
+| Omarchy | Theme palette, wallpaper, GTK colors, window appearance, generated application colors |
 | GNOME / Budgie | GTK colors, dark preference, wallpaper |
 | KDE Plasma | Qt/KDE color scheme, GTK colors, wallpaper |
 | Xfce / Cinnamon / MATE | GTK colors, dark preference, wallpaper |
 | LXQt / LXDE | GTK colors and wallpaper through PCManFM; Qt appearance may need manual setup |
-| Other desktops | GTK colors and wallpaper files for manual selection |
+| Standalone Hyprland | GTK colors, exported palette/Qt scheme, wallpaper through an already running swww daemon |
+| Sway | GTK colors, exported palette/Qt scheme, wallpaper through swaymsg + swaybg |
+| i3 / bspwm / Openbox / Awesome / Qtile / Fluxbox / IceWM (X11) | GTK colors, exported palette/Qt scheme, wallpaper through feh |
+| Other desktops (including COSMIC, Deepin and Enlightenment) | Portable GTK colors, KDE/Qt scheme, palette and wallpaper files; apply native desktop appearance manually |
 
 Native adapters require the desktop’s settings tools and active session services. Missing integrations are reported as notices. Only Omarchy has been visually checked; other adapters have isolated automated coverage. GTK applications may need reopening. Existing custom CSS may override the chosen colors. No icon packs, desktop environments, or terminal profiles are installed.
 
@@ -57,9 +60,36 @@ Preview desktop detection without changes:
 
 ```bash
 bash install.sh --detect
+bash install.sh --check
 ```
 
 Manual installation: download `redline-desktop.zip` from [Releases](https://github.com/stspivey76-byte/omarchy-redline-desktop/releases/latest), extract it, and run `bash install.sh`. Use `--desktop kde` (or another supported profile) to override detection. Run again to change color.
+
+## Linux distribution compatibility
+
+The same installer runs on Ubuntu, Debian, Linux Mint, Pop!_OS, Fedora, openSUSE, Arch/Manjaro/EndeavourOS, Alpine, and other Linux distributions with Bash and Python 3.8+. It writes to your home directory and uses the active desktop's tools. It requires neither a particular package manager nor systemd; immutable distributions can use the same per-user installation. Install missing prerequisites with your distribution's package manager first.
+
+If curl is unavailable, use wget:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-desktop/main/download.sh | bash
+```
+
+You can also download the release in a browser, extract it, and run `bash install.sh`. If your distribution has several Python versions, use `REDLINE_PYTHON=python3.11 bash install.sh` to choose a compatible interpreter. Python must include its standard SSL and zlib modules.
+
+`bash install.sh --check` is read-only: it prints the distribution, Python version, desktop adapter, missing desktop tools, and configuration directory. Install and change themes as your normal desktop user in an active graphical session.
+
+### What works in each environment
+
+Desktop integration follows the desktop environment, not the distribution: GNOME on Ubuntu and GNOME on Fedora use the same GNOME adapter. The table above distinguishes automatic adapters from portable assets. This does **not** claim identical or automatic appearance on every Linux desktop: GNOME Shell panels, COSMIC/EFL applications, Qt applications that ignore KDE schemes, sandboxed Flatpak/Snap apps, and custom widgets can require separate native setup. No global sandbox permissions are changed.
+
+For unsupported desktops, the installer still exports the selected palette and wallpaper under `${XDG_DATA_HOME:-~/.local/share}/redline-desktop/theme/` and a selectable KDE/Qt scheme under `${XDG_DATA_HOME:-~/.local/share}/color-schemes/Redline.colors`. GTK 3/4 applications load the per-user color overrides. The installer reports any wallpaper or appearance integration it could not apply.
+
+Standalone WMs receive `~/.local/bin/redline-wallpaper`. Add this command to the WM's existing startup configuration if you want its wallpaper reapplied at login (after starting swww in Hyprland). The installer preserves existing WM configs and wallpaper daemons. On restore/uninstall, log out and back in so the original startup configuration restores the prior live wallpaper.
+
+### Validation
+
+The Linux compatibility workflow runs the installer/adapters/updater/restore tests inside Ubuntu 22.04, Debian Bullseye, Fedora 43, openSUSE Tumbleweed, Alpine 3.22 (musl), and Arch containers. These check real distro runtimes; desktop settings services are mocked inside the containers. They do not constitute visual tests of every desktop. The Python 3.8 minimum is also checked locally with an isolated interpreter.
 
 ## Updates and backups
 
