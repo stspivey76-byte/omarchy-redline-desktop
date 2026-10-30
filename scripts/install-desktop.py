@@ -205,10 +205,10 @@ def main():
     if args.detect:
         print(desktop)
         return
-    from palette import choose_color, stage
+    from palette import COLORS, choose_color, stage
     updater_config = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "redline-updater/config.json"
     saved = json.loads(updater_config.read_text()).get("color", "red") if updater_config.exists() else "red"
-    color = choose_color(saved if saved in ("red", "blue", "green", "yellow", "pink", "purple") else "red", desktop)
+    color = choose_color(saved if saved in COLORS else "red", desktop)
     print("Selected color: " + color, flush=True)
     canonical = SOURCE
     with tempfile.TemporaryDirectory(prefix="redline-colors-") as temporary:

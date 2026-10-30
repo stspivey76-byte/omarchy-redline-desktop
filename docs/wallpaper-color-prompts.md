@@ -16,3 +16,9 @@ One built-in edit call was made per variant. This exact prompt template was used
 > Use case: lighting-weather edit. Asset type: Linux desktop wallpaper color variant. Edit target: the provided original crimson eclipse/Tux wallpaper. Make a COLOR accent variant by changing ONLY the red/crimson emissive eclipse rim, sky/cloud highlights, reflected light, rivers and rock edge illumination to luminous COLOR, with near-black shadows retained. Preserve exactly the same scene composition, penguin identity and pose, mountain silhouettes, camera framing, eclipse placement, detail, aspect ratio, and overall darkness. Keep the penguin black/white with its natural orange beak and feet. This is a color-only variant, not a new scene. No text, watermark, UI or extra objects.
 
 Existing attribution/licensing notes in the repository README still apply. The installer ships these PNGs directly; it does not call an image API or edit raster images on the user's machine.
+
+## Halloween Tux variant
+
+Generated with the built-in imagegen tool by editing the original Tux/crimson eclipse wallpaper. Final prompt:
+
+Built-in imagegen edit of existing Tux eclipse wallpaper. Preserve seated Tux and eclipse composition; pumpkin-orange lighting, purple fog, bats, and two jack-o-lanterns beside Tux. Dark cinematic Halloween mood, no text.

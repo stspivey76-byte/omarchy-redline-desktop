@@ -1,19 +1,31 @@
 """Color picker and deterministic recoloring of the theme text assets."""
 import colorsys
 from contextlib import ExitStack
+from functools import lru_cache
 import os
 from pathlib import Path
 import re
 import shutil
+import tomllib
 
-COLORS = {"red": "#d51b36", "blue": "#1b62d5", "green": "#59d51b", "yellow": "#d5af1b", "pink": "#d51b94", "purple": "#891bd5"}
+COLORS = {"red": "#d51b36", "blue": "#1b62d5", "green": "#59d51b", "yellow": "#d5af1b", "pink": "#d51b94", "purple": "#891bd5", "halloween": "#ff8c24"}
 HEX = re.compile(r"#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b")
 ANSI = re.compile(r"(38;2;)(\d+);(\d+);(\d+)")
 RGB_LINE = re.compile(r"(?m)^(\w+=)(\d+),(\d+),(\d+)$")
 PAYLOAD = ("VERSION", "install.sh", "scripts", "theme", "hooks")
 
 
+@lru_cache(maxsize=4096)
 def recolor_rgb(rgb, color):
+    if color == "halloween":
+        root = Path(__file__).resolve().parent.parent / "theme"
+        base = tomllib.loads((root / "colors.toml").read_text())
+        festive = tomllib.loads((root / "variants/halloween/colors.toml").read_text())
+        for key, original in base.items():
+            if key == "mode":
+                continue
+            if tuple(int(original[i:i + 2], 16) for i in (1, 3, 5)) == tuple(rgb):
+                return tuple(int(festive[key][i:i + 2], 16) for i in (1, 3, 5))
     _, saturation, value = colorsys.rgb_to_hsv(*(channel / 255 for channel in rgb))
     if saturation < 0.06:
         return tuple(rgb)  # Preserve neutral text, black, white and alpha.
@@ -50,6 +62,9 @@ def stage(source, destination, color):
             if color in ("green", "yellow") and path.suffix == ".colors":
                 text = re.sub(r"(\[Colors:Selection\][\s\S]*?ForegroundNormal=)[^\n]*", r"\g<1>8,4,6", text)
             path.write_text(text)
+    if color == "halloween":
+        variant = source / "theme/variants/halloween"
+        shutil.copytree(variant, destination / "theme", dirs_exist_ok=True)
     # Stable selected filename keeps existing theme hooks/background paths compatible.
     wallpaper = "tux-crimson-eclipse.png" if color == "red" else f"tux-{color}-eclipse.png"
     shutil.copy2(source / "theme/backgrounds" / wallpaper, destination / "theme/backgrounds/tux-crimson-eclipse.png")
@@ -72,7 +87,7 @@ def picker(default, desktop, terminal):
     terminal.write(accent + "  ╰" + "─" * 62 + "╯\n\n" + reset)
     for penguin, moon in zip(tux, eclipse):
         terminal.write("   " + bright + penguin + accent + moon + reset + "\n")
-    terminal.write(dim + "\n           Tux. Eclipse. Six colors. Your atmosphere.\n" + reset)
+    terminal.write(dim + "\n           Tux. Eclipse. Your color. Your atmosphere.\n" + reset)
     terminal.write(f"  {dim}DESKTOP{reset}  {bright}{desktop}{reset}\n")
     terminal.write(f"  {dim}MATCHES{reset}  wallpaper · theme colors · GTK\n\n")
     entries = []
@@ -82,10 +97,10 @@ def picker(default, desktop, terminal):
         selected = name == default
         entries.append(f"{'›' if selected else ' '} {index}  {swatch}  {bright if selected else ''}{name.title():<8}{reset}" + (accent + "CURRENT" + reset if selected else "       "))
     for index in range(0, len(entries), 2):
-        terminal.write("  " + entries[index] + "      " + entries[index + 1] + "\n")
+        terminal.write("  " + entries[index] + "      " + (entries[index + 1] if index + 1 < len(entries) else "") + "\n")
     terminal.write(dim + "  Settings backed up · Updates remember your color\n" + reset)
     while True:
-        terminal.write(f"\n  Choose 1–6 or a color name [Enter: {default}, q: cancel]: ")
+        terminal.write(f"\n  Choose 1–{len(COLORS)} or a color name [Enter: {default}, q: cancel]: ")
         terminal.flush()
         line = terminal.readline()
         if not line:
@@ -97,9 +112,9 @@ def picker(default, desktop, terminal):
             return default
         if answer in COLORS:
             return answer
-        if answer in tuple(map(str, range(1, 7))):
+        if answer in tuple(map(str, range(1, len(COLORS) + 1))):
             return tuple(COLORS)[int(answer) - 1]
-        terminal.write("  Please choose red, blue, green, yellow, pink, or purple.\n")
+        terminal.write("  Please choose red, blue, green, yellow, pink, purple, or halloween.\n")
 
 
 def choose_color(default, desktop):
