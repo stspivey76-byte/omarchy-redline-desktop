@@ -40,6 +40,14 @@ class PaletteTests(unittest.TestCase):
                     staged = palette.stage(SOURCE, Path(tmp) / color, color)
                     image = "tux-crimson-eclipse.png" if color == "red" else f"tux-{color}-eclipse.png"
                     self.assertEqual((staged / "theme/backgrounds/tux-crimson-eclipse.png").read_bytes(), (SOURCE / "theme/backgrounds" / image).read_bytes())
+                    if color in palette.SEASONAL:
+                        import tomllib
+                        colors = tomllib.loads((staged / "theme/colors.toml").read_text())
+                        self.assertEqual(colors["accent"], palette.COLORS[color])
+                        self.assertIn(colors["accent"], (staged / "theme/gtk-3.0/gtk.css").read_text())
+                        rgb = ",".join(str(int(colors["accent"][i:i+2], 16)) for i in (1, 3, 5))
+                        self.assertIn("DecorationFocus=" + rgb, (staged / "theme/Redline.colors").read_text())
+                        self.assertEqual((staged / "theme/variants" / color / "colors.toml").read_bytes(), (SOURCE / "theme/variants" / color / "colors.toml").read_bytes())
                     if color == "halloween":
                         import tomllib
                         colors = tomllib.loads((staged / "theme/colors.toml").read_text())
@@ -54,7 +62,7 @@ class PaletteTests(unittest.TestCase):
                     self.assertIn("--accent-fg-color: #080406;" if color in ("yellow", "green") else "--accent-fg-color: #ffffff;", css)
 
     def test_picker_accepts_number_name_default_and_cancel(self):
-        for inputs, expected in ((["2\n"], "blue"), (["pink\n"], "pink"), (["7\n"], "halloween"), (["halloween\n"], "halloween"), (["\n"], "purple"), (["invalid\n", "6\n"], "purple")):
+        for inputs, expected in ((["2\n"], "blue"), (["pink\n"], "pink"), (["7\n"], "halloween"), (["8\n"], "thanksgiving"), (["9\n"], "christmas"), (["thanksgiving\n"], "thanksgiving"), (["xmas\n"], "christmas"), (["halloween\n"], "halloween"), (["\n"], "purple"), (["invalid\n", "6\n"], "purple")):
             terminal = Mock()
             terminal.readline.side_effect = inputs
             self.assertEqual(palette.picker("purple", "gnome", terminal), expected)
@@ -63,11 +71,17 @@ class PaletteTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             palette.picker("red", "gnome", terminal)
 
-    def test_updater_remembers_halloween(self):
-        with patch.dict(os.environ, {"REDLINE_UPDATER_RUNNING": "1", "REDLINE_SELECTED_COLOR": "halloween"}):
-            self.assertEqual(palette.choose_color("red", "generic"), "halloween")
+    def test_updater_remembers_seasonal_choices(self):
+        for color in palette.SEASONAL:
+            with self.subTest(color=color), patch.dict(os.environ, {"REDLINE_UPDATER_RUNNING": "1", "REDLINE_SELECTED_COLOR": color}):
+                self.assertEqual(palette.choose_color("red", "generic"), color)
 
     def test_piped_installer_reads_color_from_controlling_terminal(self):
+        for index, color in enumerate(palette.SEASONAL, 7):
+            with self.subTest(color=color):
+                self.install_from_controlling_terminal(index, color)
+
+    def install_from_controlling_terminal(self, index, color):
         with tempfile.TemporaryDirectory() as tmp:
             home = Path(tmp)
             env = dict(os.environ, HOME=tmp, XDG_CONFIG_HOME=str(home / "config"), XDG_DATA_HOME=str(home / "data"), XDG_STATE_HOME=str(home / "state"), REDLINE_NO_START="1")
@@ -95,7 +109,7 @@ class PaletteTests(unittest.TestCase):
                             break
                         transcript += output
                         if b"Choose 1" in transcript and not answered:
-                            os.write(fd, b"7\n")
+                            os.write(fd, f"{index}\n".encode())
                             answered = True
                     finished, child_status = os.waitpid(pid, os.WNOHANG)
                     if finished:
@@ -108,9 +122,9 @@ class PaletteTests(unittest.TestCase):
                 self.assertEqual(os.waitstatus_to_exitcode(status), 0, transcript.decode(errors="replace"))
                 self.assertTrue(answered)
                 saved = json.loads((home / "data/redline-updater/config.json").read_text())
-                self.assertEqual(saved["color"], "halloween")
+                self.assertEqual(saved["color"], color)
                 self.assertFalse(saved["enabled"])
-                self.assertEqual((home / "data/redline-desktop/theme/backgrounds/tux-crimson-eclipse.png").read_bytes(), (SOURCE / "theme/backgrounds/tux-halloween-eclipse.png").read_bytes())
+                self.assertEqual((home / "data/redline-desktop/theme/backgrounds/tux-crimson-eclipse.png").read_bytes(), (SOURCE / f"theme/backgrounds/tux-{color}-eclipse.png").read_bytes())
             finally:
                 os.close(fd)
                 if status is None:

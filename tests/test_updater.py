@@ -36,6 +36,24 @@ class UpdaterTests(unittest.TestCase):
         base = f"https://github.com/{updater.REPO}/releases/download/{tag}/"
         return {"tag_name": tag, "draft": False, "prerelease": False, "assets": [{"name": name, "browser_download_url": base + name} for name in ("redline-desktop.zip", "SHA256SUMS")]}
 
+    def test_seasonal_offline_repair_preserves_palette_and_wallpaper(self):
+        for color in ("halloween", "thanksgiving", "christmas"):
+            with self.subTest(color=color), patch.dict(os.environ, REDLINE_SELECTED_COLOR=color):
+                result = subprocess.run(["bash", str(SOURCE / "install.sh"), "--desktop", "generic"], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                agent = updater.Updater()
+                wallpaper = self.colors.parent / "backgrounds/tux-crimson-eclipse.png"
+                expected = self.colors.read_bytes()
+                expected_wallpaper = wallpaper.read_bytes()
+                self.colors.write_text("damaged")
+                wallpaper.unlink()
+                with patch.object(updater, "fetch", side_effect=OSError("offline")):
+                    agent.check(repair=True)
+                self.assertEqual(self.colors.read_bytes(), expected)
+                self.assertEqual(wallpaper.read_bytes(), expected_wallpaper)
+                self.assertEqual(updater.read_json(agent.config_path)["color"], color)
+                self.assertEqual(updater.broken_files(updater.read_json(agent.config_path)), [])
+
     def test_repairs_modified_and_missing_files_from_cached_release(self):
         expected = self.colors.read_bytes()
         self.colors.write_text("damaged")

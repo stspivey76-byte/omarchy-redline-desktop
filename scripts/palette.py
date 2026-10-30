@@ -8,7 +8,8 @@ import re
 import shutil
 import tomllib
 
-COLORS = {"red": "#d51b36", "blue": "#1b62d5", "green": "#59d51b", "yellow": "#d5af1b", "pink": "#d51b94", "purple": "#891bd5", "halloween": "#ff8c24"}
+COLORS = {"red": "#d51b36", "blue": "#1b62d5", "green": "#59d51b", "yellow": "#d5af1b", "pink": "#d51b94", "purple": "#891bd5", "halloween": "#ff8c24", "thanksgiving": "#e6a03c", "christmas": "#e5484d"}
+SEASONAL = ("halloween", "thanksgiving", "christmas")
 HEX = re.compile(r"#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b")
 ANSI = re.compile(r"(38;2;)(\d+);(\d+);(\d+)")
 RGB_LINE = re.compile(r"(?m)^(\w+=)(\d+),(\d+),(\d+)$")
@@ -17,10 +18,10 @@ PAYLOAD = ("VERSION", "install.sh", "scripts", "theme", "hooks")
 
 @lru_cache(maxsize=4096)
 def recolor_rgb(rgb, color):
-    if color == "halloween":
+    if color in SEASONAL:
         root = Path(__file__).resolve().parent.parent / "theme"
         base = tomllib.loads((root / "colors.toml").read_text())
-        festive = tomllib.loads((root / "variants/halloween/colors.toml").read_text())
+        festive = tomllib.loads((root / "variants" / color / "colors.toml").read_text())
         for key, original in base.items():
             if key == "mode":
                 continue
@@ -54,6 +55,8 @@ def stage(source, destination, color):
         else:
             shutil.copy2(origin, destination / name)
     for path in destination.rglob("*"):
+        if destination / "theme/variants" in path.parents:
+            continue
         if path.is_file() and path.suffix in (".toml", ".qml", ".css", ".colors", ".jsonc", ".txt", ".lua"):
             text = recolor_text(path.read_text(), color)
             if color in ("green", "yellow") and path.suffix == ".css":
@@ -62,8 +65,8 @@ def stage(source, destination, color):
             if color in ("green", "yellow") and path.suffix == ".colors":
                 text = re.sub(r"(\[Colors:Selection\][\s\S]*?ForegroundNormal=)[^\n]*", r"\g<1>8,4,6", text)
             path.write_text(text)
-    if color == "halloween":
-        variant = source / "theme/variants/halloween"
+    if color in SEASONAL:
+        variant = source / "theme/variants" / color
         shutil.copytree(variant, destination / "theme", dirs_exist_ok=True)
     # Stable selected filename keeps existing theme hooks/background paths compatible.
     wallpaper = "tux-crimson-eclipse.png" if color == "red" else f"tux-{color}-eclipse.png"
@@ -95,7 +98,7 @@ def picker(default, desktop, terminal):
         channels = tuple(int(rgb[i:i + 2], 16) for i in (1, 3, 5))
         swatch = "\033[38;2;" + ";".join(map(str, channels)) + "m●\033[0m"
         selected = name == default
-        entries.append(f"{'›' if selected else ' '} {index}  {swatch}  {bright if selected else ''}{name.title():<8}{reset}" + (accent + "CURRENT" + reset if selected else "       "))
+        entries.append(f"{'›' if selected else ' '} {index}  {swatch}  {bright if selected else ''}{name.title():<12}{reset}" + (accent + "CURRENT" + reset if selected else "       "))
     for index in range(0, len(entries), 2):
         terminal.write("  " + entries[index] + "      " + (entries[index + 1] if index + 1 < len(entries) else "") + "\n")
     terminal.write(dim + "  Settings backed up · Updates remember your color\n" + reset)
@@ -106,6 +109,8 @@ def picker(default, desktop, terminal):
         if not line:
             raise SystemExit("Installation cancelled (terminal closed).")
         answer = line.strip().lower()
+        if answer == "xmas":
+            answer = "christmas"
         if answer in ("q", "quit", "cancel"):
             raise SystemExit("Installation cancelled.")
         if not answer:
@@ -114,7 +119,7 @@ def picker(default, desktop, terminal):
             return answer
         if answer in tuple(map(str, range(1, len(COLORS) + 1))):
             return tuple(COLORS)[int(answer) - 1]
-        terminal.write("  Please choose red, blue, green, yellow, pink, purple, or halloween.\n")
+        terminal.write("  Please choose red, blue, green, yellow, pink, purple, halloween, thanksgiving, or christmas (xmas).\n")
 
 
 def choose_color(default, desktop):

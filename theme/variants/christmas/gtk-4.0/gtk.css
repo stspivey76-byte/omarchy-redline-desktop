@@ -1,0 +1,84 @@
+/* Redline: original color overrides layered over Adwaita. */
+@define-color accent_color #ff7070;
+@define-color accent_bg_color #e5484d;
+@define-color accent_fg_color #ffffff;
+@define-color window_bg_color #09130f;
+@define-color window_fg_color #e4eee5;
+@define-color view_bg_color #060d09;
+@define-color view_fg_color #f0f6eb;
+@define-color headerbar_bg_color #14291e;
+@define-color headerbar_fg_color #f0f6eb;
+@define-color headerbar_border_color #040906;
+@define-color headerbar_backdrop_color #09130f;
+@define-color sidebar_bg_color #110909;
+@define-color sidebar_fg_color #e4eee5;
+@define-color sidebar_backdrop_color #09130f;
+@define-color secondary_sidebar_bg_color #09130f;
+@define-color secondary_sidebar_fg_color #e4eee5;
+@define-color card_bg_color #14291e;
+@define-color card_fg_color #f0f6eb;
+@define-color dialog_bg_color #14291e;
+@define-color dialog_fg_color #f0f6eb;
+@define-color popover_bg_color #14291e;
+@define-color popover_fg_color #f0f6eb;
+@define-color shade_color rgba(0, 0, 0, 0.35);
+@define-color borders #173a2b;
+@define-color theme_bg_color #09130f;
+@define-color theme_fg_color #e4eee5;
+@define-color theme_base_color #060d09;
+@define-color theme_text_color #f0f6eb;
+@define-color theme_selected_bg_color #e5484d;
+@define-color theme_selected_fg_color #ffffff;
+@define-color theme_unfocused_bg_color #09130f;
+@define-color theme_unfocused_fg_color #96ada0;
+@define-color theme_unfocused_base_color #060d09;
+@define-color theme_unfocused_text_color #96ada0;
+@define-color theme_unfocused_selected_bg_color #173a2b;
+@define-color theme_unfocused_selected_fg_color #f0f6eb;
+
+:root {
+  --accent-color: #ff7070;
+  --accent-bg-color: #e5484d;
+  --accent-fg-color: #ffffff;
+  --window-bg-color: #09130f;
+  --window-fg-color: #e4eee5;
+  --view-bg-color: #060d09;
+  --view-fg-color: #f0f6eb;
+  --headerbar-bg-color: #14291e;
+  --headerbar-fg-color: #f0f6eb;
+  --headerbar-border-color: #040906;
+  --headerbar-backdrop-color: #09130f;
+  --sidebar-bg-color: #110909;
+  --sidebar-fg-color: #e4eee5;
+  --sidebar-backdrop-color: #09130f;
+  --secondary-sidebar-bg-color: #09130f;
+  --secondary-sidebar-fg-color: #e4eee5;
+  --card-bg-color: #14291e;
+  --card-fg-color: #f0f6eb;
+  --dialog-bg-color: #14291e;
+  --dialog-fg-color: #f0f6eb;
+  --popover-bg-color: #14291e;
+  --popover-fg-color: #f0f6eb;
+  --shade-color: rgba(0, 0, 0, 0.35);
+}
+
+/* GTK widgets that do not use the libadwaita palette. */
+window, .background { background-color: @window_bg_color; color: @window_fg_color; }
+headerbar { background-color: @headerbar_bg_color; color: @headerbar_fg_color; }
+.view, textview text { background-color: @view_bg_color; color: @view_fg_color; }
+.navigation-sidebar { background-color: @sidebar_bg_color; color: @sidebar_fg_color; }
+selection, .view:selected, row:selected { background-color: @accent_bg_color; color: @accent_fg_color; }
+entry:focus { outline-color: @accent_color; }
+button.suggested-action { background-color: @accent_bg_color; color: @accent_fg_color; }
+
+/* Files uses neutral selection colors in its grid and column views. */
+.nautilus-grid-view gridview > child:selected,
+.nautilus-list-view columnview > listview > row:selected,
+.nautilus-network-view listview > row:selected {
+  background-color: @accent_bg_color;
+  color: @accent_fg_color;
+}
+
+/* Rounded controls and menus; leave application layout and sizing intact. */
+button, entry, searchentry { border-radius: 8px; }
+popover > contents { border-radius: 12px; }

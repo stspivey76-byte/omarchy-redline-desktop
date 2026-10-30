@@ -1,6 +1,6 @@
 # Redline Theme
 
-Steven’s black and red theme with Tux/eclipse wallpapers and a terminal color picker. Choose **red, blue, green, yellow, pink, purple, or Halloween**.
+Steven’s black and red theme with Tux/eclipse wallpapers and a terminal color picker. Choose **red, blue, green, yellow, pink, purple, Halloween, Thanksgiving, or Christmas**.
 
 ![Redline wallpaper](theme/backgrounds/tux-crimson-eclipse.png)
 
@@ -12,7 +12,7 @@ Run in a terminal as your normal user:
 curl -fsSL https://raw.githubusercontent.com/stspivey76-byte/omarchy-redline-desktop/main/download.sh | bash
 ```
 
-The installer downloads the latest release, verifies its SHA-256 checksum, opens the seven-option menu, and backs up affected theme files/settings. Requires Linux, Bash, Python 3.11+, curl, and sha256sum. It does not install packages.
+The installer downloads the latest release, verifies its SHA-256 checksum, opens the nine-option menu, and backs up affected theme files/settings. Requires Linux, Bash, Python 3.11+, curl, and sha256sum. It does not install packages.
 
 The main installer contains **the theme and color picker only**: wallpapers, Omarchy palette and theme styling, GTK 3/4 colors, a KDE color scheme, and theme update/restore helpers. Your existing plugins, taskbar layout, idle settings, terminal configuration, Fastfetch layout, and shell startup files are preserved. Omarchy applies the chosen palette to its normal theme-aware applications and widgets; custom plugins with fixed colors control their own appearance. The theme includes rounded window corners, shadows, borders and spacing on Omarchy.
 
@@ -84,7 +84,7 @@ Installer backups are stored under `${XDG_STATE_HOME:-~/.local/state}/redline-de
 
 ## Validation and attribution
 
-Run `python3 -m unittest discover -s tests -v`. Checks cover desktop adapters, seven-option selection, theme-only payloads, preservation of personal plugins/taskbar/terminal/Fastfetch files, backup/restore, updater checksums, offline repair and rollback. Desktop tools are mocked in isolated test homes.
+Run `python3 -m unittest discover -s tests -v`. Checks cover desktop adapters, nine-option selection, theme-only payloads, preservation of personal plugins/taskbar/terminal/Fastfetch files, backup/restore, updater checksums, offline repair and rollback. Desktop tools are mocked in isolated test homes.
 
 The full rice was separated into its own repository. Historical releases before 2.0.0 still contain the previous desktop bundle. Wallpaper redistribution terms have not been independently established; no new asset license is asserted. See [wallpaper notes](docs/wallpaper-color-prompts.md).
 
@@ -93,3 +93,11 @@ The full rice was separated into its own repository. Historical releases before 
 Choose **7 — Halloween** (or type `halloween`) in the installer picker for pumpkin-orange accents, deep-purple surfaces, and Tux beside glowing jack-o’-lanterns under an orange eclipse. The updater remembers this choice. The original six colors remain available. Your plugins and taskbar layout are preserved; custom widgets with fixed colors keep their own styling.
 
 ![Halloween Tux wallpaper](theme/backgrounds/tux-halloween-eclipse.png)
+
+### Thanksgiving and Christmas vibes
+
+Choose **8 — Thanksgiving** for amber-gold accents, warm brown surfaces, autumn leaves, and Tux beside harvest pumpkins. Choose **9 — Christmas** (or type `xmas`) for festive red accents, evergreen surfaces, snowy mountains, and Tux wearing a Santa hat beside a decorated tree. These choices are remembered by the updater, just like Halloween.
+
+![Thanksgiving Tux wallpaper](theme/backgrounds/tux-thanksgiving-eclipse.png)
+
+![Christmas Tux wallpaper](theme/backgrounds/tux-christmas-eclipse.png)
